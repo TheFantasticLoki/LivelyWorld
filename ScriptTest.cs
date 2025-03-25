@@ -344,7 +344,7 @@ public class LivelyWorld : Script
     void LogThis(string text, bool ToFile, bool ToNotification)
     {
         if (ToFile) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - "+ text);
-        if (ToNotification) UI.Notify( "SpawnAnimalTrophy()");
+        if (ToNotification) GTA.UI.Notification.Show( "SpawnAnimalTrophy()");
 
     }
     void SpawnAnimalTrophy()
@@ -416,7 +416,7 @@ public class LivelyWorld : Script
                 }
                 if (Debug >= DebugLevel.EventsAndScenarios)
                 {
-                    UI.Notify("~b~Spawned trophy on " + veh.FriendlyName);
+                    GTA.UI.Notification.Show("~b~Spawned trophy on " + veh.FriendlyName);
                 }
 
 
@@ -668,21 +668,21 @@ public class LivelyWorld : Script
         //Fixes
         if (CurrentlyAllowedEvents.Contains(EventType.Hunter))
         {
-            if (new List<string> { "CANNY", "MTJOSE", "DESRT", "CMSW", "ZANCUDO", "LAGO", "GREATC", "PALHIGH", "CCREAK", "MTCHIL" }.Contains(World.GetZoneNameLabel(Game.Player.Character.Position)) == false)
+            if (new List<string> { "CANNY", "MTJOSE", "DESRT", "CMSW", "ZANCUDO", "LAGO", "GREATC", "PALHIGH", "CCREAK", "MTCHIL" }.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z)) == false)
             {
                 CurrentlyAllowedEvents.Remove(EventType.Hunter);
             }
         }
         if (CurrentlyAllowedScenarios.Contains(ScenarioType.AnimalTrophies))
         {
-            if (new List<string> { "ALAMO", "PALETO", "SANDY" }.Contains(World.GetZoneNameLabel(Game.Player.Character.Position)) == false)
+            if (new List<string> { "ALAMO", "PALETO", "SANDY" }.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z)) == false)
             {
                 CurrentlyAllowedScenarios.Remove(ScenarioType.AnimalTrophies);
             }
         }
         if (CurrentlyAllowedEvents.Contains(EventType.GangDriveby))
         {
-            if (!GangAreas.Contains(World.GetZoneNameLabel(Game.Player.Character.Position)))
+            if (!GangAreas.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z)))
             {
                 CurrentlyAllowedEvents.Remove(EventType.GangDriveby);
             }
@@ -851,14 +851,14 @@ public class LivelyWorld : Script
            if (Function.Call<bool>(Hash.DOES_SCRIPT_VEHICLE_GENERATOR_EXIST, Generator))
            {
                Function.Call<bool>(Hash.DELETE_SCRIPT_VEHICLE_GENERATOR, Generator);
-               UI.Notify("Removed generator");
+               GTA.UI.Notification.Show("Removed generator");
            }
            else
            {
                string car = Game.GetUserInput(30);
                Vector3 coords = Game.Player.Character.Position;
                Generator = Function.Call<int>(Hash.CREATE_SCRIPT_VEHICLE_GENERATOR, coords.X, coords.Y, coords.Z, Game.Player.Character.Heading, 5.0f, 3.0f, Game.GenerateHash(car), -1, -1, -1, -1, true, true, true, true, true, -1);
-               UI.Notify("Created generator");
+               GTA.UI.Notification.Show("Created generator");
            }
        }            if (WasCheatStringJustEntered("override"))
        {
@@ -872,14 +872,14 @@ public class LivelyWorld : Script
            Function.Call<int>(Hash.OVERRIDE_POPSCHEDULE_VEHICLE_MODEL, Function.Call<int>(Hash.GET_ZONE_POPSCHEDULE, zoneid), Game.GenerateHash(CarHash));
            carmodel.Request();
 
-           //UI.Notify("Done.");
+           //GTA.UI.Notification.Show("Done.");
        }
 
        */
         if (WasCheatStringJustEntered("lwattachcycle"))
         {
             Vehicle v = Game.Player.Character.CurrentVehicle;
-            UI.Notify("Input the bycicle modelname.");
+            GTA.UI.Notification.Show("Input the bycicle modelname.");
             Vehicle cycleCar = AttachBikeToCar(v,Game.GetUserInput(20));
             cycleCar.Velocity = v.Velocity;
             if (CanWeUse(cycleCar)) cycleCar.IsPersistent = false;
@@ -888,7 +888,7 @@ public class LivelyWorld : Script
 
         if (WasCheatStringJustEntered("lqstrip"))
         {
-            UI.Notify("Stripping " + Game.Player.Character.LastVehicle.FriendlyName);
+            GTA.UI.Notification.Show("Stripping " + Game.Player.Character.LastVehicle.FriendlyName);
             StripOfAllPossible(Game.Player.Character.LastVehicle, true, true, true, true, false, true);
         }
 
@@ -901,7 +901,7 @@ public class LivelyWorld : Script
 
             if (CanWeUse(p))
             {
-                UI.Notify("Forced pullover for " + p.CurrentVehicle.FriendlyName);
+                GTA.UI.Notification.Show("Forced pullover for " + p.CurrentVehicle.FriendlyName);
                 TemporalPullover(p);
             }
         }
@@ -909,14 +909,14 @@ public class LivelyWorld : Script
         if (Duel) HandleDuel();
         if (WasCheatStringJustEntered("lwduel"))
         {
-            UI.Notify("Forced experimental duel (truck)");
+            GTA.UI.Notification.Show("Forced experimental duel (truck)");
             Duel = true;
         }
         if (WasCheatStringJustEntered("lwscenario"))
         {
 
-            UI.Notify("Input the Scenario you want to force.~n~Options:");
-            foreach (ScenarioType d in Enum.GetValues(typeof(ScenarioType)).Cast<ScenarioType>()) UI.Notify("~g~"+d.ToString());
+            GTA.UI.Notification.Show("Input the Scenario you want to force.~n~Options:");
+            foreach (ScenarioType d in Enum.GetValues(typeof(ScenarioType)).Cast<ScenarioType>()) GTA.UI.Notification.Show("~g~"+d.ToString());
 
                 string input = Game.GetUserInput(30);
 
@@ -933,8 +933,8 @@ public class LivelyWorld : Script
 
         if (WasCheatStringJustEntered("lwevent"))
         {
-            UI.Notify("Input the Event  you want to force.~n~Options:");
-            foreach (EventType d in Enum.GetValues(typeof(EventType)).Cast<EventType>()) UI.Notify("~g~" + d.ToString());
+            GTA.UI.Notification.Show("Input the Event  you want to force.~n~Options:");
+            foreach (EventType d in Enum.GetValues(typeof(EventType)).Cast<EventType>()) GTA.UI.Notification.Show("~g~" + d.ToString());
 
             string input = Game.GetUserInput(30);
 
@@ -950,19 +950,19 @@ public class LivelyWorld : Script
         }
         if (WasCheatStringJustEntered("lwracers"))
         {
-            UI.Notify("Forced a multiple Racer  event.");
-            if (Racers.Count == 0) CreateRacers(); else UI.Notify("racers still exist");
+            GTA.UI.Notification.Show("Forced a multiple Racer  event.");
+            if (Racers.Count == 0) CreateRacers(); else GTA.UI.Notification.Show("racers still exist");
         }
         if (WasCheatStringJustEntered("lwwerecar"))
         {
             werecar = Game.Player.Character.LastVehicle;
-            UI.Notify("Forced the Werecar experiment.");
+            GTA.UI.Notification.Show("Forced the Werecar experiment.");
         }
 
         HandleWereCar();
         if (WasCheatStringJustEntered("lwbarn"))
         {
-              UI.Notify("Your car is now a wreck.");
+              GTA.UI.Notification.Show("Your car is now a wreck.");
 
             Vehicle v = Game.Player.Character.CurrentVehicle;
             if (!CanWeUse(v)) v = Game.Player.Character.LastVehicle;
@@ -1046,7 +1046,7 @@ public class LivelyWorld : Script
                             Function.Call(Hash.SET_PED_TO_RAGDOLL, p, 2000, 2000, 3, true, true, false);
                             Function.Call(Hash.CREATE_NM_MESSAGE, 1151);
                             Function.Call(Hash.GIVE_PED_NM_MESSAGE, p, true);
-                            UI.Notify("ragdolled");
+                            GTA.UI.Notification.Show("ragdolled");
                             */
             }
         }
@@ -1059,27 +1059,27 @@ public class LivelyWorld : Script
             t = t + "Vector3 (" + pos.X + "," + pos.Y + "," + pos.Z + ");";
             File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + t);
 
-            UI.Notify(t);
-            UI.Notify("Logged on LivelyWorldDebug.txt");
+            GTA.UI.Notification.Show(t);
+            GTA.UI.Notification.Show("Logged on LivelyWorldDebug.txt");
         }
         if (WasCheatStringJustEntered("lwcarjacker"))
         {
-            UI.Notify("Forced a carjacker event.");
+            GTA.UI.Notification.Show("Forced a carjacker event.");
             CarjackerEnabled = true;
         }
 
         if (WasCheatStringJustEntered("lwtraffictest"))
         {
-            UI.Notify("~b~Calling for all injected vehicles:");
+            GTA.UI.Notification.Show("~b~Calling for all injected vehicles:");
             foreach (TrafficSpawner t in TrafficSpawnerList)
             {
                 t.Cooldown = Game.GameTime + (RandomInt(1, 10) * 1000);
-                //UI.Notify(t.SourceVehicle.ToString());
+                //GTA.UI.Notification.Show(t.SourceVehicle.ToString());
             }
         }
         if (WasCheatStringJustEntered("lwtow"))
         {
-            UI.Notify("Called for a Tow event.");
+            GTA.UI.Notification.Show("Called for a Tow event.");
 
             SpawnTow();
 
@@ -1089,27 +1089,27 @@ public class LivelyWorld : Script
         if (WasCheatStringJustEntered("lwdebugoutput"))
         {
             DebugOutput = !DebugOutput;
-            UI.Notify("~b~Debug output is now " + DebugOutput);
+            GTA.UI.Notification.Show("~b~Debug output is now " + DebugOutput);
         }
 
         if (WasCheatStringJustEntered("lwdrivebyb"))
         {
-            UI.Notify("DriveBy Spawned (Ballas)");
+            GTA.UI.Notification.Show("DriveBy Spawned (Ballas)");
             SpawnGangDriveBy(Gang.Ballas, World.GetClosestPed(Game.Player.Character.Position.Around(30f), 20f));
         }
         if (WasCheatStringJustEntered("lwdrivebyf"))
         {
-            UI.Notify("DriveBy Spawned (Families)");
+            GTA.UI.Notification.Show("DriveBy Spawned (Families)");
             SpawnGangDriveBy(Gang.Families, World.GetClosestPed(Game.Player.Character.Position.Around(30f), 20f));
         }
         if (WasCheatStringJustEntered("lwdrivebyl"))
         {
-            UI.Notify("DriveBy Spawned  (Lost)");
+            GTA.UI.Notification.Show("DriveBy Spawned  (Lost)");
             SpawnGangDriveBy(Gang.Lost, World.GetClosestPed(Game.Player.Character.Position.Around(30f), 20f));
         }
         if (WasCheatStringJustEntered("lwdrivebyv"))
         {
-            UI.Notify("DriveBy Spawned (Vagos)");
+            GTA.UI.Notification.Show("DriveBy Spawned (Vagos)");
             SpawnGangDriveBy(Gang.Vagos, World.GetClosestPed(Game.Player.Character.Position.Around(30f), 20f));
         }
 
@@ -1119,47 +1119,47 @@ public class LivelyWorld : Script
             text += "Zone:" + GetZoneName(Game.Player.Character.Position);
             text += "~n~Street:" + World.GetStreetName(Game.Player.Character.Position);
             text += "~n~Zone:" + World.GetZoneName(Game.Player.Character.Position);
-            text += "~n~ZoneLabel:" + World.GetZoneNameLabel(Game.Player.Character.Position);
+            text += "~n~ZoneLabel:" + Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z);
 
-            UI.Notify(text);
+            GTA.UI.Notification.Show(text);
         }
         if (WasCheatStringJustEntered("lwhunter"))
         {
-            UI.Notify("Called for a Hunter event.");
+            GTA.UI.Notification.Show("Called for a Hunter event.");
             Vector3 pos = World.GetSafeCoordForPed(Game.Player.Character.Position.Around(100), false); //GenerateSpawnPos(Game.Player.Character.Position.Around(50),Nodetype.Offroad,false)
             Hunters.Add(new Hunter(pos));
         }
         if (WasCheatStringJustEntered("lwanimaltrophy"))
         {
-            UI.Notify("Called for an Animal Trophy event.");
+            GTA.UI.Notification.Show("Called for an Animal Trophy event.");
             SpawnAnimalTrophy();
         }
         if (WasCheatStringJustEntered("lwambulance"))
         {
-            UI.Notify("Called for an Ambulance event.");
+            GTA.UI.Notification.Show("Called for an Ambulance event.");
             SpawnEmergencyVehicle(EmergencyType.AMBULANCE);
         }
         if (WasCheatStringJustEntered("lwpolice"))
         {
-            UI.Notify("Called for a Police event.");
+            GTA.UI.Notification.Show("Called for a Police event.");
             SpawnEmergencyVehicle(EmergencyType.POLICE);
         }
         if (WasCheatStringJustEntered("lwfiretruck"))
         {
-            UI.Notify("Called for a Firetruck event.");
+            GTA.UI.Notification.Show("Called for a Firetruck event.");
             SpawnEmergencyVehicle(EmergencyType.FIRETRUCK);
         }
         if (WasCheatStringJustEntered("lwdebug"))
         {
             Debug++;
             if (Debug > DebugLevel.Everything) Debug = DebugLevel.None;
-            UI.Notify("~b~Debug set to " + Debug.ToString());
+            GTA.UI.Notification.Show("~b~Debug set to " + Debug.ToString());
         }
-        if (WasCheatStringJustEntered("lwblips")) { DebugBlips = !DebugBlips; UI.Notify("~b~DebugBlips set to " + DebugBlips.ToString()); }
+        if (WasCheatStringJustEntered("lwblips")) { DebugBlips = !DebugBlips; GTA.UI.Notification.Show("~b~DebugBlips set to " + DebugBlips.ToString()); }
 
         if (WasCheatStringJustEntered("lwtaxi"))
         {
-            UI.Notify("Called for a Taxi event.");
+            GTA.UI.Notification.Show("Called for a Taxi event.");
             SpawnTaxiEvent();
         }
 
@@ -1171,17 +1171,17 @@ public class LivelyWorld : Script
         */
         if (WasCheatStringJustEntered("lwdealp"))
         {
-            UI.Notify("Called for a Deal event (private).");
+            GTA.UI.Notification.Show("Called for a Deal event (private).");
             SpawnDrugDeal(false);
         }
         if (WasCheatStringJustEntered("lwdeal"))
         {
-            UI.Notify("Called for a Deal event. (Automatic)");
+            GTA.UI.Notification.Show("Called for a Deal event. (Automatic)");
             SpawnDrugDeal(IsInNamedArea(Game.Player.Character, "desrt"));
         }
         if (WasCheatStringJustEntered("lwdealg"))
         {
-            UI.Notify("Called for a Gang Deal event. (Gang)");
+            GTA.UI.Notification.Show("Called for a Gang Deal event. (Gang)");
             SpawnDrugDeal(true);
         }
     }
@@ -1290,7 +1290,7 @@ public class LivelyWorld : Script
         if (BlacklistedVehicles.Count > 50)
         {
             BlacklistedVehicles.RemoveRange(0, 5);
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~ BlacklistedVehicles list pruned .");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~ BlacklistedVehicles list pruned .");
         }
 
 
@@ -1298,7 +1298,7 @@ public class LivelyWorld : Script
         {
             if (!CurrentlyAllowedScenarios.Contains(ScenarioType.BarnFinds)) return;
             if (Game.Player.Character.IsInRangeOf(LastWreck, 100f)) return;
-            //UI.Notify("Wrecker started");
+            //GTA.UI.Notification.Show("Wrecker started");
            if(DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Checking for wrecks");
             int i = 0;
             foreach (Prop p in World.GetAllProps())
@@ -1365,7 +1365,7 @@ public class LivelyWorld : Script
                 else WrecksChecker = Game.GameTime + 50000;
             }
 
-            // UI.Notify("Wrecker finished");
+            // GTA.UI.Notification.Show("Wrecker finished");
         }
         //Blacklisted events cooldown
         if (BlacklistedEvents.Count > 0)
@@ -1383,7 +1383,7 @@ public class LivelyWorld : Script
                 {
                     BlackistedEventsTime = BlackistedEventsTime = Game.GameTime + 40000;
                     BlacklistedEvents.RemoveAt(0);
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Blacklisted events cleared");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Blacklisted events cleared");
                 }
             }
         }
@@ -1405,7 +1405,7 @@ public class LivelyWorld : Script
                 {
                     BlackistedImportantEventsTime = BlackistedImportantEventsTime = Game.GameTime + (60000 * BlackistedImportantEventsCooldown); //change to 5 in release
                     BlacklistedImportantEvents.RemoveAt(0);
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Blacklisted Important events cleared");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Blacklisted Important events cleared");
                 }
             }
         }*/
@@ -1442,7 +1442,7 @@ public class LivelyWorld : Script
             if (BlacklistedModels.Count > 5)
             {
                 BlacklistedModels.RemoveAt(0);
-                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~y~Blacklist cleaned");
+                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~y~Blacklist cleaned");
             }
 
             AllPeds.Clear();
@@ -1493,7 +1493,7 @@ public class LivelyWorld : Script
                 Function.Call(Hash.SET_VEHICLE_INDICATOR_LIGHTS, Overtaker.CurrentVehicle, 0, false);
 
                 Overtaker.Task.ClearAll();
-              if(Debug>= DebugLevel.EventsAndScenarios)  UI.Notify(Overtaker.CurrentVehicle.FriendlyName + " overtake finished");
+              if(Debug>= DebugLevel.EventsAndScenarios)  GTA.UI.Notification.Show(Overtaker.CurrentVehicle.FriendlyName + " overtake finished");
                 Overtaker.IsPersistent = false;
                 Overtaker.DrivingStyle = DrivingStyle.Normal;
                 Overtaker = null;
@@ -1589,7 +1589,7 @@ public class LivelyWorld : Script
                     stringScore += "+Livery";
                     score += 20;
                 }
-                UI.Notify(stringScore);
+                GTA.UI.Notification.Show(stringScore);
                 string message = "";
 
                 if (v.FriendlyName != "")
@@ -1648,7 +1648,7 @@ public class LivelyWorld : Script
 
             }
 
-            //if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says bennys");
+            //if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says bennys");
 
             //Benny's Motorworks
             if (!ScenarioFlow.Contains(ScenarioType.AmbientTuner) && CurrentlyAllowedScenarios.Contains(ScenarioType.AmbientTuner) && Bennys.Count > 0
@@ -1674,7 +1674,7 @@ public class LivelyWorld : Script
                             veh.CurrentBlip.IsShortRange = true;
                             veh.CurrentBlip.Name = "Custom Vehicle";
                         }
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Benny's car spawned");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Benny's car spawned");
 
                         ped.IsPersistent = false;
                         veh.IsPersistent = false;
@@ -1695,7 +1695,7 @@ public class LivelyWorld : Script
                     if (!Function.Call<bool>(Hash.IS_SHOCKING_EVENT_IN_SPHERE, 113, p.X, p.Y, p.Z, 30f))
                     {
                         Function.Call(Hash.ADD_SHOCKING_EVENT_FOR_ENTITY, 113, car, 30f);
-                     //   UI.Notify("Added cool car event for " + car.FriendlyName);
+                     //   GTA.UI.Notification.Show("Added cool car event for " + car.FriendlyName);
                     }
                 }
             }            
@@ -1743,7 +1743,7 @@ public class LivelyWorld : Script
                                         SetDecorBool("Ignore", p, true);
                                         if (p.Gender == Gender.Male) UI.ShowSubtitle("~b~[Guy]~w~ Cool car man, mind if I take a photo?", 3000); else UI.ShowSubtitle("~b~[Girl]~w~ Cool car man, mind if I take a photo?", 3000);
 
-                                        // UI.Notify(Function.Call<float>(Hash.GET_ENTITY_ANIM_CURRENT_TIME, p, "amb@world_human_tourist_mobile_car@male@base", "").ToString());
+                                        // GTA.UI.Notification.Show(Function.Call<float>(Hash.GET_ENTITY_ANIM_CURRENT_TIME, p, "amb@world_human_tourist_mobile_car@male@base", "").ToString());
                                         break;
                                     }
                                 }
@@ -1763,7 +1763,7 @@ public class LivelyWorld : Script
             //Handlers
             if (TemporalPersistence.Count > 0)
             {
-                if (Debug >= DebugLevel.Everything) UI.Notify("Persistent entities: " + TemporalPersistence.Count);
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("Persistent entities: " + TemporalPersistence.Count);
                 for (int i = 0; i < TemporalPersistence.Count - 1; i++)
                 {
                     if (!CanWeUse(TemporalPersistence[i]))
@@ -1775,7 +1775,7 @@ public class LivelyWorld : Script
                     {
                         if (!TemporalPersistence[i].IsInRangeOf(Game.Player.Character.Position, 200f))
                         {
-                            if (Debug >= DebugLevel.Everything) UI.Notify("Removing persistent ~b~" + TemporalPersistence[i].ToString() + ""); // 
+                            if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("Removing persistent ~b~" + TemporalPersistence[i].ToString() + ""); // 
                             TemporalPersistence[i].IsPersistent = false;
                             TemporalPersistence.RemoveAt(i);
                             break;
@@ -1801,14 +1801,14 @@ public class LivelyWorld : Script
                             ve.EnginePowerMultiplier = 1;
                             ve.IsDriveable = true;
                             if (ve.CurrentBlip.Exists()) ve.CurrentBlip.Remove();
-                            //UI.Notify("fixed");
+                            //GTA.UI.Notification.Show("fixed");
                             BarnCars.Remove(ve);
                             break;
                         }
                     }
                     else
                     {
-                        //UI.Notify("removed");
+                        //GTA.UI.Notification.Show("removed");
                         BarnCars.Remove(ve);
                         break;
                     }
@@ -1879,24 +1879,24 @@ public class LivelyWorld : Script
         {
             SmallEventCooldownTime = Game.GameTime + InteractionCooldown; //future InteractionCooldown 
 
-            if (!BlacklistedAreas.Contains(World.GetZoneNameLabel(Game.Player.Character.Position).ToLowerInvariant()))
+            if (!BlacklistedAreas.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z).ToLowerInvariant()))
             {
                 if (RandomInt(0, 100) < InteractionFrecuency) Scenarios();
             }
-            else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Player is in restricted area, Scenarios disabled.");
+            else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Player is in restricted area, Scenarios disabled.");
         }
 
         //Spawner
         if (EventCooldownTime < Game.GameTime) //Spawner events
         {
             EventCooldownTime = Game.GameTime + EventCooldown;
-            if (!BlacklistedAreas.Contains(World.GetZoneNameLabel(Game.Player.Character.Position).ToLowerInvariant()))
+            if (!BlacklistedAreas.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z).ToLowerInvariant()))
             {
                 if (AllVehicles.Length > 10) HandleEvents();
-                else if (Debug >= DebugLevel.EventsAndScenarios) { UI.Notify("~b~[Ambient Events]~w~: Not enough traffic to spawn anything."); EventCooldownTime = Game.GameTime + 60000; }
+                else if (Debug >= DebugLevel.EventsAndScenarios) { GTA.UI.Notification.Show("~b~[Ambient Events]~w~: Not enough traffic to spawn anything."); EventCooldownTime = Game.GameTime + 60000; }
 
             }
-            else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Player is in restricted area, SpawnerEvents disabled.");
+            else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Player is in restricted area, SpawnerEvents disabled.");
         }
 
         //Car replacer
@@ -1990,7 +1990,7 @@ public class LivelyWorld : Script
             if (ScenarioFlow.Count > 2) ScenarioFlow.RemoveAt(0);
             else if (ScenarioFlow.Count>0 && RandomInt(0, 10)<2) ScenarioFlow.RemoveAt(0);
 
-         //   UI.Notify("~r~Attaching bikes");
+         //   GTA.UI.Notification.Show("~r~Attaching bikes");
             AttackBikes();
             ToAttachBikes.Clear();
         }
@@ -2011,7 +2011,7 @@ public class LivelyWorld : Script
                     }
                     else
                     {
-                        //UI.Notify("finished " + fadeInE);
+                        //GTA.UI.Notification.Show("finished " + fadeInE);
                         FadeIn.RemoveAt(0);
                     }
                 }
@@ -2048,7 +2048,7 @@ public class LivelyWorld : Script
 
         if (Game.GameTime > hiccupdetector + 500)
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~r~Game hiccup detected");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~r~Game hiccup detected");
             if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - HICCUP DETECTED (" + (Game.GameTime - hiccupdetector) + "ms) - check the output above this to find the culprit");
         }
 
@@ -2125,7 +2125,7 @@ public class LivelyWorld : Script
                                 BlacklistedVehicles.Add(veh);
                                 if (Debug >= DebugLevel.EventsAndScenarios)
                                 {
-                                    UI.Notify("Spawned a police bicycle on " + veh.FriendlyName + " (~g~" + Chance + "%~w~ chance)");
+                                    GTA.UI.Notification.Show("Spawned a police bicycle on " + veh.FriendlyName + " (~g~" + Chance + "%~w~ chance)");
                                 }
 
                                 if (!veh.CurrentBlip.Exists())
@@ -2144,7 +2144,7 @@ public class LivelyWorld : Script
                     {
                         if (Debug >= DebugLevel.EventsAndScenarios)
                         {
-                            UI.Notify("Failed chance to spawn a police bicycle on " + veh.FriendlyName + " (~r~" + Chance + "%~w~ chance)");
+                            GTA.UI.Notification.Show("Failed chance to spawn a police bicycle on " + veh.FriendlyName + " (~r~" + Chance + "%~w~ chance)");
                         }
                     }
                     ScenarioFlow.Add(ScenarioType.PoliceCarCarryingBike);
@@ -2176,7 +2176,7 @@ public class LivelyWorld : Script
                                 BlacklistedVehicles.Add(veh);
                                 if (Debug >= DebugLevel.None)
                                 {
-                                    UI.Notify("Spawned a bicycle on " + veh.FriendlyName + " (~g~" + Chance + "%~w~ chance)");
+                                    GTA.UI.Notification.Show("Spawned a bicycle on " + veh.FriendlyName + " (~g~" + Chance + "%~w~ chance)");
                                 }
 
                                 if (DebugBlips && !veh.CurrentBlip.Exists())
@@ -2196,7 +2196,7 @@ public class LivelyWorld : Script
                     {
                         if (Debug >= DebugLevel.EventsAndScenarios)
                         {
-                            UI.Notify("Failed chance to spawn a  bicycle on " + veh.FriendlyName + " (~r~" + Chance + "%~w~ chance)");
+                            GTA.UI.Notification.Show("Failed chance to spawn a  bicycle on " + veh.FriendlyName + " (~r~" + Chance + "%~w~ chance)");
                         }
                     }
                 }
@@ -2263,7 +2263,7 @@ public class LivelyWorld : Script
                                     Overtaker = veh.Driver;
                                     Overtaker.IsPersistent = true;
                                     Overtaker.AlwaysKeepTask = true;
-                                    if(Debug>= DebugLevel.EventsAndScenarios) UI.Notify(veh.FriendlyName + " overtakes "+ (D.HitEntity as Vehicle).FriendlyName);
+                                    if(Debug>= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show(veh.FriendlyName + " overtakes "+ (D.HitEntity as Vehicle).FriendlyName);
                                     Function.Call(Hash.TASK_VEHICLE_DRIVE_WANDER, Overtaker, veh, veh.Speed + 20f, 2 + 4 + 8 + 16 + 32 + 128 + 512);
                                     Function.Call(GTA.Native.Hash.SET_DRIVER_ABILITY, Overtaker, 100f);
                                     if (!Overtaken.IsPersistent) Overtaken.IsPersistent = true;
@@ -2339,7 +2339,7 @@ public class LivelyWorld : Script
                                 TemporalPersistence.Add(cargo);
                                 cargo.ToggleExtra(1, false);
                                 cargo.AttachTo(trailer, 0, (new Vector3(0, 2, -0.4f)), new Vector3(0, 0, 0));
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[FreighTrucks] Freight (annihilator) spawned on a " + veh.FriendlyName + ".");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[FreighTrucks] Freight (annihilator) spawned on a " + veh.FriendlyName + ".");
                             }
                             else
                             {
@@ -2352,7 +2352,7 @@ public class LivelyWorld : Script
                                 TemporalPersistence.Add(cargo);
                                 cargo.ToggleExtra(1, false);
                                 cargo.AttachTo(trailer, 0, (new Vector3(0, 5, -0.3f)), new Vector3(0, 0, 0));
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[FreighTrucks] Freight (helis) spawned on a " + veh.FriendlyName + ".");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[FreighTrucks] Freight (helis) spawned on a " + veh.FriendlyName + ".");
                             }
 
                             Function.Call(Hash.ATTACH_VEHICLE_TO_TRAILER, veh, trailer, 50);
@@ -2367,7 +2367,7 @@ public class LivelyWorld : Script
                     if (CurrentlyAllowedScenarios.Contains(ScenarioType.ImprovedFlatbeds)  &&!ScenarioFlow.Contains(ScenarioType.ImprovedFlatbeds) && veh.Speed < 25f &&  !CanWeUse(GetAttachedVehicle(veh, false)) &&
                         !BlacklistedVehicles.Contains(veh) && (!veh.IsOnScreen || !Game.Player.Character.IsInRangeOf(veh.Position, 20f)) && (CarrierVehicles.Contains(veh.Model) && CanWeUse(veh.Driver)))
                     {
-                        if (Debug >= DebugLevel.Everything) UI.Notify("Got carrier, " + veh.FriendlyName);
+                        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("Got carrier, " + veh.FriendlyName);
                         string vehicle = RandomNormalVehicle();
 
                         veh.IsPersistent = true;
@@ -2395,7 +2395,7 @@ public class LivelyWorld : Script
                                 veh.CurrentBlip.IsShortRange = true;
                             }
                             // veh.FreezePosition = false;
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[Carriers] Attached " + cargo.FriendlyName + " on " + veh.FriendlyName + ".");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[Carriers] Attached " + cargo.FriendlyName + " on " + veh.FriendlyName + ".");
                             TemporalPersistence.Add(cargo);
                             TemporalPersistence.Add(veh);
                             BlacklistedVehicles.Add(veh);
@@ -2473,19 +2473,19 @@ public class LivelyWorld : Script
                                 if (veh.GetModCount(VehicleMod.Hydraulics) > 0)
                                 {
                                     veh.ApplyForceRelative(veh.UpVector * 5);
-                                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("LowriderJump for " + veh.FriendlyName);
+                                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("LowriderJump for " + veh.FriendlyName);
                                 }
                                 else if (new List<VehicleClass> { VehicleClass.Muscle, VehicleClass.Sports, VehicleClass.SportsClassics, VehicleClass.Super }.Contains(veh.ClassType))
                                 {
                                     Function.Call(Hash.TASK_VEHICLE_TEMP_ACTION, driver, veh, 30, 3000);
                                     ScenarioFlow.Add(ScenarioType.StoppedAtLightsInteraction);
-                                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Burnout for " + veh.FriendlyName);
+                                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Burnout for " + veh.FriendlyName);
                                 }
                                 else
                                 {
                                     veh.SoundHorn(2000);
                                     ScenarioFlow.Add(ScenarioType.StoppedAtLightsInteraction);
-                                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Honk for " + veh.FriendlyName);
+                                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Honk for " + veh.FriendlyName);
                                 }
                             }
                             continue;
@@ -2495,7 +2495,7 @@ public class LivelyWorld : Script
             }
         }
         else AllVehicles = World.GetAllVehicles();
-        //if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify(MonitoredVehicles.Count + " specific cars being monitored of " + AllVehicles.Count + ". ~n~(" + names + ")");
+        //if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show(MonitoredVehicles.Count + " specific cars being monitored of " + AllVehicles.Count + ". ~n~(" + names + ")");
 
     }
     void AttachRandomCarToTow(Vehicle tow)
@@ -2530,7 +2530,7 @@ public class LivelyWorld : Script
             //towdriver.IsPersistent = false;
             towed.IsPersistent = false;
 
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Tow + vehicle spawned");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Tow + vehicle spawned");
             BlacklistedVehicles.Add(tow);
             BlacklistedVehicles.Add(towed);
 
@@ -2555,7 +2555,7 @@ public class LivelyWorld : Script
         {
             CarjackerEnabled = false;
             CarjackerPhase = 0;
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~r~Carjacker event cancelled, not enough vehicles.");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~r~Carjacker event cancelled, not enough vehicles.");
             Carjacker = null;
             CarjackerTarget = null;
             return;
@@ -2579,7 +2579,7 @@ public class LivelyWorld : Script
                         CarjackerTarget.IsPersistent = true;
                         BlacklistedVehicles.Add(CarjackerTarget);
                         TemporalPersistence.Add(CarjackerTarget);
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ got vehicle to jack, " + veh.FriendlyName);
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ got vehicle to jack, " + veh.FriendlyName);
                         break;
                     }
                 }
@@ -2592,7 +2592,7 @@ public class LivelyWorld : Script
                 {
                     CarjackerEnabled = false;
                     CarjackerPhase = 0;
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~r~Carjacker event cancelled, carjacker interrupted.");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~r~Carjacker event cancelled, carjacker interrupted.");
                     if (Carjacker.CurrentBlip.Exists()) Carjacker.CurrentBlip.Remove();
 
                     return;
@@ -2602,7 +2602,7 @@ public class LivelyWorld : Script
             {
                 CarjackerEnabled = false;
                 CarjackerPhase = 0;
-                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~r~Carjacker event cancelled.");
+                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~r~Carjacker event cancelled.");
                 Carjacker = null;
                 CarjackerTarget = null;
                 return;
@@ -2620,7 +2620,7 @@ public class LivelyWorld : Script
                         {
                             Vector3 pos = World.GetSafeCoordForPed(CarjackerTarget.Position.Around(20f)); // Game.Player.Character.Position.Around(5);//GetQuietPlace();
                             if (pos == Vector3.Zero) pos = GenerateSpawnPos(CarjackerTarget.Position.Around(30f), Nodetype.Offroad, true);
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("creating carjacker...");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("creating carjacker...");
 
                             Carjacker = World.CreatePed("s_m_y_dealer_01", pos, 0);
                             Carjacker.AlwaysKeepTask = true;
@@ -2637,7 +2637,7 @@ public class LivelyWorld : Script
                             }
 
                             //CarjackerPhase++;
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("carjacker created");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("carjacker created");
                         }
                         else
                         {
@@ -2653,7 +2653,7 @@ public class LivelyWorld : Script
                         {
                             if (IsIdle(Carjacker))
                             {
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ tasked to go to target");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ tasked to go to target");
 
                                 if (Carjacker.IsInRangeOf(CarjackerTarget.Position, 30f)) Function.Call(Hash.TASK_GO_TO_ENTITY, Carjacker, CarjackerTarget, -1, 3f, 1f, 1073741824, 0);
                                 else Function.Call(Hash.TASK_GO_TO_ENTITY, Carjacker, CarjackerTarget, -1, 25f, 2f, 1073741824, 0);
@@ -2668,7 +2668,7 @@ public class LivelyWorld : Script
                     {
 
 
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ looking around");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ looking around");
                         LookOutTime = Game.GameTime + 10000;
                         TaskSequence seq = new TaskSequence();
 
@@ -2691,14 +2691,14 @@ public class LivelyWorld : Script
 
                             if (isCopInRange(CarjackerTarget.Position, 30f) || (IsEntityAheadEntity(Game.Player.Character, Carjacker) && CanPedSeePed(Carjacker, Game.Player.Character, false)))
                             {
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ cops/player nearby, jacker leaves the scene");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ cops/player nearby, jacker leaves the scene");
                                 Function.Call(Hash.TASK_WANDER_STANDARD, Carjacker, 100f, 10f);
                                 if (Carjacker.CurrentBlip.Exists()) Carjacker.CurrentBlip.Color = BlipColor.White;
 
                             }
                             else
                             {
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ no cops nearby, jacking");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ no cops nearby, jacking");
 
                                 TaskSequence seq = new TaskSequence();
                                 Function.Call(Hash.TASK_ENTER_VEHICLE, 0, CarjackerTarget, 20000, -1, 1f, 1, 0);
@@ -2730,7 +2730,7 @@ public class LivelyWorld : Script
                             TemporalPersistence.Add(CarjackerTarget);
                             //   CarjackerTarget.IsPersistent = false;
                             // Carjacker.IsPersistent = false;
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~[Carjacker]~w~ Carjacker event finished");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~[Carjacker]~w~ Carjacker event finished");
                             CarjackerEnabled = false;
                             CarjackerPhase = 0;
                         }
@@ -2760,13 +2760,13 @@ public class LivelyWorld : Script
         if (!CanWeUse(victim)) return;
         victim.IsPersistent = true;
 
-        if (Debug >= DebugLevel.Everything) UI.Notify("Victim exists");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("Victim exists");
 
         Vector3 pos = GenerateSpawnPos(Game.Player.Character.Position.Around(100), Nodetype.Road, false);
         Vehicle veh = null;
         List<Ped> Peds = new List<Ped>();
 
-        if (Debug >= DebugLevel.Everything) UI.Notify("setting rlgroups");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("setting rlgroups");
         int HateRLGroup = World.AddRelationshipGroup("hatetemp");
         int VictimRLGroup = World.AddRelationshipGroup("victimtemp");
         victim.RelationshipGroup = VictimRLGroup;
@@ -2779,7 +2779,7 @@ public class LivelyWorld : Script
 
         World.SetRelationshipBetweenGroups(Relationship.Hate, HateRLGroup, victim.RelationshipGroup);
         World.SetRelationshipBetweenGroups(Relationship.Hate, victim.RelationshipGroup, HateRLGroup);
-        if (Debug >= DebugLevel.Everything) UI.Notify("checking kind of gang");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("checking kind of gang");
 
         switch (g)
         {
@@ -2841,7 +2841,7 @@ public class LivelyWorld : Script
                     break;
                 }
         }
-        if (Debug >= DebugLevel.Everything) UI.Notify("setting up gang");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("setting up gang");
 
         if (DebugBlips)
         {
@@ -2855,11 +2855,11 @@ public class LivelyWorld : Script
         Ped driver = veh.Driver;
         if (!CanWeUse(driver))
         {
-            if (Debug >= DebugLevel.Everything) UI.Notify("No driver!");
+            if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("No driver!");
             driver = Peds[0];
         }
         MoveEntitytoNearestRoad(veh, true, true);
-        if (Debug >= DebugLevel.Everything) UI.Notify("tasking gang");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("tasking gang");
 
         TaskSequence seq = new TaskSequence();
         Function.Call(Hash.TASK_ENTER_VEHICLE, 0, veh, 20000, -1, 1f, 1, 0);
@@ -2887,7 +2887,7 @@ public class LivelyWorld : Script
         Function.Call(Hash.CREATE_INCIDENT_WITH_ENTITY, 7, victim, 2, 3f, id);
         Function.Call(Hash.ADD_SHOCKING_EVENT_FOR_ENTITY, 85, veh, 40f);
         */
-        if (Debug >= DebugLevel.Everything) UI.Notify("finished");
+        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("finished");
         // GangDrivebyCooldown = Game.GameTime + 60 * 1000 * (RandomInt(2, 5));
     }
     public static void RandomTuning(Vehicle veh, bool parts, bool changecolor, bool livery, bool neons, bool horn)
@@ -2968,10 +2968,10 @@ public class LivelyWorld : Script
 
         if (ray.DitHitAnything)
         {
-            //UI.Notify("cannot see");
+            //GTA.UI.Notification.Show("cannot see");
             return false; //&& ray.HitCoords.DistanceTo(target) > 10f && ray.HitCoords.DistanceTo(watcher.Position) < 10f
         }
-        //UI.Notify("can see");
+        //GTA.UI.Notification.Show("can see");
 
         return true;
     }
@@ -3080,7 +3080,7 @@ public class LivelyWorld : Script
                     DuelDriver.IsPersistent = false;
 
                 }
-                //UI.Notify("Finished Duel");
+                //GTA.UI.Notification.Show("Finished Duel");
                 Duel = false;
 
                 DuelTruck = null;
@@ -3110,7 +3110,7 @@ public class LivelyWorld : Script
 
 
             DuelTruck.AddBlip();
-            //UI.Notify("Spawned duel");
+            //GTA.UI.Notification.Show("Spawned duel");
             DuelTruck.EnginePowerMultiplier = 400;
 
 
@@ -3166,7 +3166,7 @@ public class LivelyWorld : Script
                 if (Function.Call<bool>((Hash)0x36D782F68B309BDA, werecar) && Math.Abs(Function.Call<Vector3>(Hash.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS, werecar, victimpos.X, victimpos.Y, victimpos.Z).X) < 5f &&
                    Math.Abs(Function.Call<Vector3>(Hash.GET_ENTITY_ROTATION_VELOCITY, werecar, true).Z) < 0.3f && Math.Abs(Function.Call<Vector3>(Hash.GET_ENTITY_SPEED_VECTOR, werecar, true).Y) > 1f)
                 {
-                    UI.Notify("~y~Special ability!");
+                    GTA.UI.Notification.Show("~y~Special ability!");
                     Function.Call((Hash)0x81E1552E35DC3839, werecar, true);
                 }
             }
@@ -3180,7 +3180,7 @@ public class LivelyWorld : Script
                 p.IsVisible = false;
                 p.IsInvincible = true;
                 p.BlockPermanentEvents = true;
-                // UI.Notify("~o~Something stalks you from the dark.");
+                // GTA.UI.Notification.Show("~o~Something stalks you from the dark.");
                 weredriver = p;
                 Function.Call(Hash.SET_VEHICLE_LIGHTS, werecar, 1);
                 werecar.EnginePowerMultiplier = 1000;
@@ -3195,7 +3195,7 @@ public class LivelyWorld : Script
                 werecar.IsPersistent = false;
 
                 werecar = null;
-                // UI.Notify("~g~Defeated!");
+                // GTA.UI.Notification.Show("~g~Defeated!");
                 return;
             }
             switch (wcarstate)
@@ -3236,7 +3236,7 @@ public class LivelyWorld : Script
                             seq.Close();
                             werecar.Driver.Task.PerformSequence(seq);
                             seq.Dispose();
-                            //  UI.Notify("~o~You angered it...");
+                            //  GTA.UI.Notification.Show("~o~You angered it...");
 
                             Function.Call(Hash.SET_VEHICLE_LIGHTS, werecar, 0);
                             wcarstate = WereCarBehavior.Attacking;
@@ -3259,7 +3259,7 @@ public class LivelyWorld : Script
                                 }
                                 else
                                 {
-                                    UI.Notify("the beast looks for you.");
+                                    GTA.UI.Notification.Show("the beast looks for you.");
 
                                     TaskSequence seq = new TaskSequence();
                                     Vector3 Destination = LerpByDistance(Game.Player.Character.Position, werecar.Position, werecar.Position.DistanceTo(Game.Player.Character.Position) + 40);
@@ -3276,7 +3276,7 @@ public class LivelyWorld : Script
                             }
                             else
                             {
-                                UI.Notify("~o~The beast repositions itself.");
+                                GTA.UI.Notification.Show("~o~The beast repositions itself.");
 
                                 TaskSequence seq = new TaskSequence();
                                 Vector3 Destination = GenerateSpawnPos(werecar.Position.Around(20), Nodetype.AnyRoad, false);
@@ -3344,7 +3344,7 @@ public class LivelyWorld : Script
 
                             if (Function.Call<Vector3>(Hash.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS, werecar, victimpos.X, victimpos.Y, victimpos.Z).X > 5f)
                             {
-                                //     UI.Notify("~o~The beast sees through your cheats.");
+                                //     GTA.UI.Notification.Show("~o~The beast sees through your cheats.");
                             }
 
                             TaskSequence seq = new TaskSequence();
@@ -3372,7 +3372,7 @@ public class LivelyWorld : Script
 
                                     if (Function.Call<Vector3>(Hash.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS, werecar, victimpos.X, victimpos.Y, victimpos.Z).Y < 5f)
                                     {
-                                        UI.Notify("isbehind");
+                                        GTA.UI.Notification.Show("isbehind");
                                         Vector3 pos = Vector3.Zero;// LerpByDistance(Game.Player.Character.Position, werecar.Position, Game.Player.Character.Position.DistanceTo(werecar.Position) + 30);
                                         //pos= World.GetSafeCoordForPed(pos, true);
                                         //if (pos == Vector3.Zero) pos = GenerateSpawnPos(LerpByDistance(Game.Player.Character.Position, werecar.Position, Game.Player.Character.Position.DistanceTo(werecar.Position) + 30), Nodetype.AnyRoad, false);
@@ -3392,7 +3392,7 @@ public class LivelyWorld : Script
                                     }
                                     else
                                     {
-                                        UI.Notify("isahead");
+                                        GTA.UI.Notification.Show("isahead");
                                         Vector3 pos = LerpByDistance(Game.Player.Character.Position, werecar.Position, Game.Player.Character.Position.DistanceTo(werecar.Position) * 0.6f);
                                         Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE, 0, werecar, pos.X, pos.Y, pos.Z, 30f, 16777216, 20f);
                                     }
@@ -3405,7 +3405,7 @@ public class LivelyWorld : Script
                                 Function.Call(Hash.TASK_VEHICLE_MISSION_PED_TARGET, 0, werecar, Game.Player.Character, 4, 200f, 16777216, 5f, 100f, false);
                                 Function.Call(Hash.TASK_VEHICLE_TEMP_ACTION, 0, werecar, 32, 1000);
                                 Function.Call(Hash.TASK_VEHICLE_TEMP_ACTION, 0, werecar, 6, 2000);
-                                //     UI.Notify("It attacks!");
+                                //     GTA.UI.Notification.Show("It attacks!");
                                 HitThePlayer = false;
                                 UseRocket = true;
                                 CheckDoorBehavior = true;
@@ -3665,10 +3665,10 @@ public class LivelyWorld : Script
             if (!DecorExistsOn("LWIgnore", taxi) && new List<Model> { "taxi", "taxi20", "taxi21", "taxiesperanto" }.Contains(taxi.Model) && CanWeUse(taxi.Driver) && taxi.IsInRangeOf(Game.Player.Character.Position, 100f))
             {
                 vtaxi = taxi;
-                if (Debug >= DebugLevel.Everything) UI.Notify("got taxi");
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("got taxi");
                 if (CanWeUse(taxi.Driver) && !taxi.Driver.IsPlayer && !taxi.Driver.IsPersistent)
                 {
-                    if (Debug >= DebugLevel.Everything) UI.Notify("got driver");
+                    if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("got driver");
                     tdriver = taxi.Driver;
 
                     if (DoesVehicleHavePassengers(taxi))
@@ -3677,7 +3677,7 @@ public class LivelyWorld : Script
                         {
                             if (ped.IsInVehicle(taxi) && ped.Handle != taxi.Driver.Handle && ped.IsHuman && !ped.IsPersistent && !ped.IsPlayer)
                             {
-                                if (Debug >= DebugLevel.Everything) UI.Notify("got hitch");
+                                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("got hitch");
                                 Hitch = ped;
                                 break;
                             }
@@ -3690,7 +3690,7 @@ public class LivelyWorld : Script
                         {
                             if (ped.IsOnFoot && ped.IsAlive && ped.Handle != taxi.Driver.Handle && ped.IsHuman && !ped.IsPersistent && !ped.IsPlayer)
                             {
-                                if (Debug >= DebugLevel.Everything) UI.Notify("got hitch");
+                                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("got hitch");
                                 Hitch = ped;
                                 break;
                             }
@@ -3721,7 +3721,7 @@ public class LivelyWorld : Script
                 else if (veh.IsExtraOn(4)) veh.PrimaryColor = VehicleColor.MetallicGoldenBrown;
                 else if (veh.IsExtraOn(6)) veh.PrimaryColor = VehicleColor.MetallicGoldenBrown;
                 else if (veh.IsExtraOn(7)) veh.PrimaryColor = VehicleColor.BrushedGold;
-                if (Debug >= DebugLevel.Everything) UI.Notify("~b~resprayed Mule to " + veh.PrimaryColor.ToString());
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~b~resprayed Mule to " + veh.PrimaryColor.ToString());
 
             }
 
@@ -3729,7 +3729,7 @@ public class LivelyWorld : Script
             {
                 if (veh.IsExtraOn(1)) veh.PrimaryColor = VehicleColor.MetallicFrostWhite;
                 else if (veh.IsExtraOn(2)) veh.PrimaryColor = VehicleColor.MetallicRaceYellow;
-                if (Debug >= DebugLevel.Everything) UI.Notify("~b~resprayed Pounder to " + veh.PrimaryColor.ToString());
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~b~resprayed Pounder to " + veh.PrimaryColor.ToString());
 
             }
             if (veh.Model == "benson")
@@ -3742,16 +3742,16 @@ public class LivelyWorld : Script
                 else if (veh.IsExtraOn(5)) veh.PrimaryColor = VehicleColor.MetallicGreen;
                 else if (veh.IsExtraOn(6)) veh.PrimaryColor = VehicleColor.MetallicFrostWhite;
                 else if (veh.IsExtraOn(7)) veh.PrimaryColor = VehicleColor.MetallicFrostWhite;
-                if (Debug >= DebugLevel.Everything) UI.Notify("~b~Resprayed Benson to " + veh.PrimaryColor.ToString());
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~b~Resprayed Benson to " + veh.PrimaryColor.ToString());
 
             }
             if (veh.Model == "packer" || veh.Model == "hauler" || veh.Model == "phantom" || veh.Model == "roadkiller")
             {
 
-                if (Debug >= DebugLevel.Everything) UI.Notify("found " + veh.FriendlyName);
+                if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("found " + veh.FriendlyName);
                 if (Function.Call<bool>(Hash.IS_VEHICLE_ATTACHED_TO_TRAILER, veh))
                 {
-                    if (Debug >= DebugLevel.Everything) UI.Notify("has trailer");
+                    if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("has trailer");
                     Vehicle vehtrailer = null;
 
                     vehtrailer = GetTrailer(veh);
@@ -3764,29 +3764,29 @@ public class LivelyWorld : Script
 
                     if (CanWeUse(vehtrailer))
                     {
-                        if (Debug >= DebugLevel.Everything) UI.Notify("correct trailer model");
+                        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("correct trailer model");
                         if ((VehicleHash)vehtrailer.Model.Hash == VehicleHash.Tanker || (VehicleHash)vehtrailer.Model.Hash == VehicleHash.Tanker2) veh.PrimaryColor = VehicleColor.Orange;
                         if (vehtrailer.LiveryCount > 0)
                         {
-                            if (Debug >= DebugLevel.Everything) UI.Notify("~g~changed color");
+                            if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~g~changed color");
                             switch (vehtrailer.Livery)
                             {
                                 case 0:
                                     {
-                                        if (Debug >= DebugLevel.Everything) UI.Notify("~g~gold");
+                                        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~g~gold");
                                         veh.PrimaryColor = VehicleColor.PureGold;
                                         break;
                                     }
                                 case 2:
                                     {
-                                        if (Debug >= DebugLevel.Everything) UI.Notify("~g~yellow");
+                                        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~g~yellow");
                                         veh.PrimaryColor = VehicleColor.MetallicTaxiYellow;
 
                                         break;
                                     }
                                 case 3:
                                     {
-                                        if (Debug >= DebugLevel.Everything) UI.Notify("~g~red");
+                                        if (Debug >= DebugLevel.Everything) GTA.UI.Notification.Show("~g~red");
 
                                         veh.PrimaryColor = VehicleColor.MetallicBlazeRed;
                                         break;
@@ -3810,7 +3810,7 @@ public class LivelyWorld : Script
     {
 
         if (CurrentlyAllowedScenarios.Count() == 0) return;
-        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("AmbientSmallEvents()");
+        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("AmbientSmallEvents()");
 
 
         if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Scenarios() ");
@@ -3831,18 +3831,18 @@ public class LivelyWorld : Script
         if (ForcedScenario > -1)
         {
             ScenarioSelector = (ScenarioType)ForcedScenario;
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~g~Forced Scenario: ~b~" + ScenarioSelector.ToString());
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~g~Forced Scenario: ~b~" + ScenarioSelector.ToString());
 
         }
         else
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Chosen Scenario: ~b~" + ScenarioSelector.ToString());
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Chosen Scenario: ~b~" + ScenarioSelector.ToString());
         }
 
 
         if (ScenarioFlow.Contains(ScenarioSelector))
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Cancelled, already done recently");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Cancelled, already done recently");
             return;
         }
         switch (ScenarioSelector)
@@ -3850,12 +3850,12 @@ public class LivelyWorld : Script
             default:
                 {
                     SmallEventCooldownTime = Game.GameTime + 500;
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~y~Wrong scenario selected, retrying");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~y~Wrong scenario selected, retrying");
                     return;
                 }
             case ScenarioType.DriverRushing: //PedRushing
                 {
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Trying PedRushing");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Trying PedRushing");
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - PedRushing");
 
                     if (!DisabledScenarios.Contains(ScenarioType.DriverRushing))
@@ -3871,7 +3871,7 @@ public class LivelyWorld : Script
                                     {
                                         if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - correct");
 
-                                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Driver rushing triggered");
+                                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Driver rushing triggered");
                                         Ped ped = veh.Driver;
                                         ped.Task.ClearAll();
                                         ped.DrivingSpeed = 120f;
@@ -3896,14 +3896,14 @@ public class LivelyWorld : Script
                                 }
                             }
                         }
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~PedRushing is on cooldown (" + (Game.GameTime - PedRushingCooldown) / 1000 + "s)");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~PedRushing is on cooldown (" + (Game.GameTime - PedRushingCooldown) / 1000 + "s)");
                     }
-                    else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~PedRushing event is disabled.");
+                    else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~PedRushing event is disabled.");
                     break;
                 }
             case ScenarioType.Taxi: //Taxi
                 {
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Trying Taxi");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Trying Taxi");
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Taxi scenario");
 
                     if (!DisabledScenarios.Contains(ScenarioType.Taxi))
@@ -3914,17 +3914,17 @@ public class LivelyWorld : Script
                         }
                         else
                         {
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Taxi is on cooldown (" + (Game.GameTime - TaxigCooldown) / 1000 + "s)");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Taxi is on cooldown (" + (Game.GameTime - TaxigCooldown) / 1000 + "s)");
                         }
                     }
-                    else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Taxi event is disabled.");
+                    else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Taxi event is disabled.");
 
 
                     break;
                 }
             case ScenarioType.VehicleInteraction: //DrivingOut / Interaction
                 {
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Trying car interaction");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Trying car interaction");
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - car interaction");
                     if (!DisabledScenarios.Contains(ScenarioType.VehicleInteraction))
                     {
@@ -3973,7 +3973,7 @@ public class LivelyWorld : Script
                                 Protag.Driver.IsPersistent = true;
                                 TemporalPersistence.Add(Protag.Driver);
                                 TemporalPullover(Protag.Driver);
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("pullover " + Protag.FriendlyName);
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("pullover " + Protag.FriendlyName);
                                 BlacklistedVehicles.Add(Protag);
                                 ScenarioFlow.Add(ScenarioType.VehicleInteraction);
 
@@ -4000,7 +4000,7 @@ public class LivelyWorld : Script
  
                                         RaycastResult Behind = World.Raycast(Protag.Position - (Protag.ForwardVector*(Protag.Model.GetDimensions().Y/2)), Protag.ForwardVector * -20f, 20f, IntersectOptions.Map, Protag);
 
-                                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Ped driving out triggered");
+                                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Ped driving out triggered");
                                         ped.AlwaysKeepTask = true;
                                         Protag.LockStatus = VehicleLockStatus.Unlocked;
                                         Protag.NeedsToBeHotwired = false;
@@ -4074,16 +4074,16 @@ public class LivelyWorld : Script
                                 }
                             }
                         }
-                        else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Car interactions are on cooldown (" + (Game.GameTime - CarInteractionCooldown) / 1000 + "s)");
+                        else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Car interactions are on cooldown (" + (Game.GameTime - CarInteractionCooldown) / 1000 + "s)");
                     }
-                    else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Car interactions are disabled.");
+                    else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Car interactions are disabled.");
                     break;
                 }
             case ScenarioType.AnimalTrophies:
                 {
                     if (!DisabledScenarios.Contains(ScenarioType.AnimalTrophies))
                     {
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Spawning trophy");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Spawning trophy");
                         SpawnAnimalTrophy();
                     }
                     break;
@@ -4094,7 +4094,7 @@ public class LivelyWorld : Script
         {
 
             SmallEventCooldownTime = Game.GameTime + 2000;
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~" + ScenarioSelector.ToString() + " did not spawn.");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~" + ScenarioSelector.ToString() + " did not spawn.");
         }
         else
         {
@@ -4153,7 +4153,7 @@ public class LivelyWorld : Script
         {
             if (CanWeUse(veh) && veh.Speed > 5f && CanWeUse(veh.GetPedOnSeat(VehicleSeat.Driver)) && veh.Speed > 20f && veh.GetPedOnSeat(VehicleSeat.Driver).Handle != PlayerPed().Handle)
             {
-                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Causing accident to " + veh.FriendlyName);
+                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Causing accident to " + veh.FriendlyName);
                 veh.ApplyForceRelative(new Vector3(0f, 2f, 0f), new Vector3(0f, 0f, 1f));
                 Function.Call(Hash.SET_VEHICLE_REDUCE_GRIP, veh, true);
                 Script.Wait(500);
@@ -4234,27 +4234,27 @@ public class LivelyWorld : Script
         if (CurrentlyAllowedEvents.Count == 0) return;
         if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - HandleSpawnerEvents()");
 
-        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~HandleSpawnerEvents()");
+        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~HandleSpawnerEvents()");
         if (RandomInt(0, 100) >= EventFrecuency)
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says no spawner now");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says no spawner now");
             return;
         }
-        else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~g~dice says events will spawn");
+        else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~g~dice says events will spawn");
 
         EventType eventspawnerint = CurrentlyAllowedEvents[RandomInt(0, CurrentlyAllowedEvents.Count - 1)];
         if (ForcedEvent > -1)
         {
             eventspawnerint = (EventType)ForcedEvent;
-            UI.Notify("~g~Forced event: ~b~" + eventspawnerint.ToString());
+            GTA.UI.Notification.Show("~g~Forced event: ~b~" + eventspawnerint.ToString());
         }
         else
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Chosen event: ~b~" + eventspawnerint.ToString());
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Chosen event: ~b~" + eventspawnerint.ToString());
         }
         if (Eventflow.Contains(eventspawnerint))
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Cancelled, already done recently");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Cancelled, already done recently");
             return;
         }
         switch (eventspawnerint)
@@ -4262,12 +4262,12 @@ public class LivelyWorld : Script
             case EventType.EmergencyRushing:
                 {
                     //Ambient emergency rushing
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Trying emergency");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Trying emergency");
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - emergency scenario");
 
                     if (EmergencyRushingCooldown > Game.GameTime)
                     {
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~EmergencyRushing is on cooldown (" + (Game.GameTime - EmergencyRushingCooldown) / 1000 + "s)");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~EmergencyRushing is on cooldown (" + (Game.GameTime - EmergencyRushingCooldown) / 1000 + "s)");
                         return;
                     }
                     if (!DisabledEvents.Contains(EventType.EmergencyRushing))
@@ -4284,7 +4284,7 @@ public class LivelyWorld : Script
                                         {
                                             if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - correct");
 
-                                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Cop driving out triggered");
+                                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Cop driving out triggered");
                                             ped.IsPersistent = true;
                                             TemporalPersistence.Add(ped);
 
@@ -4319,7 +4319,7 @@ public class LivelyWorld : Script
                                         {
                                             if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - correct");
 
-                                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Cop rushing to emergency triggered");
+                                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Cop rushing to emergency triggered");
                                             Ped ped = veh.Driver;
                                             ped.AlwaysKeepTask = true;
                                             veh.SirenActive = true;
@@ -4344,11 +4344,11 @@ public class LivelyWorld : Script
                             }
                         }
                     }
-                    else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~EmergencyRushing is disabled.");
+                    else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~EmergencyRushing is disabled.");
 
                     if (!Eventflow.Contains(EventType.EmergencyRushing))
                     {
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Failed to achieve ambient emergency, spawning one");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Failed to achieve ambient emergency, spawning one");
                         SpawnEmergencyVehicle(EmergencyType.AMBULANCE);
                         Eventflow.Add(EventType.EmergencyRushing);
                     }
@@ -4356,7 +4356,7 @@ public class LivelyWorld : Script
                 }
             case EventType.GangDriveby:
                 {
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says driveby");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says driveby");
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Driveby");
 
                     //DriveBy
@@ -4366,7 +4366,7 @@ public class LivelyWorld : Script
                         {
                             Eventflow.Add(EventType.GangDriveby);
 
-                            switch (World.GetZoneNameLabel(Game.Player.Character.Position))
+                            switch (Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z))
                             {
                                 case "RANCHO":
                                 case "CYPRE": //Vagos territory
@@ -4395,27 +4395,27 @@ public class LivelyWorld : Script
                                     }
                                 default:
                                     {
-                                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Player is not in a valid gang activity area.");
+                                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Player is not in a valid gang activity area.");
                                         break;
                                     }
                             }
                         }
                     }
-                    else if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Gang Activity is disabled.");
+                    else if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Gang Activity is disabled.");
                     break;
                 }
             case EventType.Hunter:
                 {
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Hunter/trophy");
 
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says hunter/trophy");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says hunter/trophy");
 
                     //Hunter && Animal trophy
                     if ( !IsNightTime())
                     {
-                        if (Hunters.Count == 0 && (new List<string> { "CANNY", "MTJOSE", "DESRT", "CMSW", "ZANCUDO", "LAGO", "GREATC", "PALHIGH", "CCREAK", "MTCHIL" }.Contains(World.GetZoneNameLabel(Game.Player.Character.Position))))
+                        if (Hunters.Count == 0 && (new List<string> { "CANNY", "MTJOSE", "DESRT", "CMSW", "ZANCUDO", "LAGO", "GREATC", "PALHIGH", "CCREAK", "MTCHIL" }.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z))))
                         {
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Trying hunter");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Trying hunter");
                             // Vector3 pos = World.GetSafeCoordForPed(Game.Player.Character.Position.Around(100), false); //GenerateSpawnPos(Game.Player.Character.Position.Around(50),Nodetype.Offroad,false)
 
                             Vector3 pos = GenerateSpawnPos(Game.Player.Character.Position.Around(50), Nodetype.Offroad, false);
@@ -4425,7 +4425,7 @@ public class LivelyWorld : Script
 
                                 Hunters.Add(new Hunter(pos));
                                 Eventflow.Add(EventType.Hunter);
-                                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~Got pos, spawning hunter");
+                                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~Got pos, spawning hunter");
                             }
                         }
                     }
@@ -4435,7 +4435,7 @@ public class LivelyWorld : Script
                 {
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Deal");
 
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says Deal");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says Deal");
 
                     //Deals
                     if (!DisabledEvents.Contains(EventType.Deal))
@@ -4450,16 +4450,16 @@ public class LivelyWorld : Script
                 {
 
                     if (DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Racer");
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~b~dice says Racer");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~b~dice says Racer");
 
                     //Racers
                     if (Racecars.Count > 0)
                     {
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Attempting to spawn racer event...");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Attempting to spawn racer event...");
 
                         if (RandomInt(0, 10) >= 5)
                         {
-                            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Racer event will be a race between multiple cars");
+                            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Racer event will be a race between multiple cars");
 
                             CreateRacers();
                             Eventflow.Add(EventType.Racer);
@@ -4489,12 +4489,12 @@ public class LivelyWorld : Script
                                     if (RandomInt(0, 10) >= 5)
                                     {
                                         Function.Call(Hash.TASK_VEHICLE_DRIVE_WANDER, ped, veh, 10f, 1 + 2 + 8 + 32);
-                                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Event will be a lone tuner vehicle");
+                                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Event will be a lone tuner vehicle");
                                     }
                                     else
                                     {
                                         Function.Call(Hash.TASK_VEHICLE_DRIVE_WANDER, ped, veh, 30f, 1 + 2 + 4 + 8 + 16 + 32 + 512);
-                                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Event will be a lone racer");
+                                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Event will be a lone racer");
                                         ped.RelationshipGroup = RacersRLGroup;
                                     }
 
@@ -4507,7 +4507,7 @@ public class LivelyWorld : Script
                                         veh.CurrentBlip.IsShortRange = true;
                                         veh.CurrentBlip.Name = "Racer";
                                     }
-                                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Racing car spawned");
+                                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Racing car spawned");
 
                                     //ped.IsPersistent = false;
                                     //veh.IsPersistent = false;
@@ -4534,7 +4534,7 @@ public class LivelyWorld : Script
 
         if (!Eventflow.Contains(eventspawnerint))
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~" + eventspawnerint.ToString() + "did not spawn.");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~" + eventspawnerint.ToString() + "did not spawn.");
             EventCooldownTime = Game.GameTime + 3000;
         }
         else
@@ -4561,7 +4561,7 @@ public class LivelyWorld : Script
         {
             EmergencyScore = +30;
         }
-        if (IsNightTime() || GangAreas.Contains(World.GetZoneNameLabel(Game.Player.Character.Position))) Crimescore = +30;
+        if (IsNightTime() || GangAreas.Contains(Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z))) Crimescore = +30;
 
 
         //        Crimescore += RandomInt((Crimescore * -1) / 2, Crimescore / 2);
@@ -4606,21 +4606,21 @@ public class LivelyWorld : Script
 
         }
 
-        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Requirement: " + Random + "~n~criminal: " + Crimescore + "~n~accident: " + EmergencyScore);
+        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Requirement: " + Random + "~n~criminal: " + Crimescore + "~n~accident: " + EmergencyScore);
 
     }
     void CreateCriminalEvent()
     {
-        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("CreateCriminalEvent()");
+        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("CreateCriminalEvent()");
         if (RandomInt(0, 10) <= 5)
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Carjacker spawned.");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Carjacker spawned.");
 
             CarjackerEnabled = true;
         }
         else
         {
-            if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[Event] Busy copcar spawned.");
+            if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[Event] Busy copcar spawned.");
             //SpawnChase(FindHiddenSpot(50,true),false);
             if (!BlacklistedEvents.Contains(EventType.EmergencyRushing))
             {
@@ -4649,7 +4649,7 @@ public class LivelyWorld : Script
 
     void SpawnChase(Vector3 pos, bool big)
     {
-        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("chase spawned");
+        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("chase spawned");
         Vehicle criminalveh;
         Ped criminalped;
 
@@ -4709,12 +4709,12 @@ public class LivelyWorld : Script
                 {
                     if (!AheadPlayer || IsPosAheadEntity(Game.Player.Character, spot) > 0)
                     {
-                        if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[HiddenSpot] Found place, " + i + "º try");
+                        if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[HiddenSpot] Found place, " + i + "º try");
 
                     }
                     break;
                 }
-                else if (i == 19 && Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[HiddenSpot] ~r~Didn't find appropiate place");
+                else if (i == 19 && Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[HiddenSpot] ~r~Didn't find appropiate place");
             }
             return spot;
         }
@@ -4726,10 +4726,10 @@ public class LivelyWorld : Script
                 RaycastResult raycast = World.Raycast(PlayerPed().Position, spot + new Vector3(0, 0, 1), IntersectOptions.Map);
                 if (raycast.DitHitAnything || PlayerPed().Position.DistanceTo(spot) > 100f)
                 {
-                    if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[HiddenSpot] Found place, " + i + "º try");
+                    if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[HiddenSpot] Found place, " + i + "º try");
                     break;
                 }
-                else if (i == 19 && Debug >= DebugLevel.EventsAndScenarios) UI.Notify("[HiddenSpot] ~r~Didn't find appropiate place");
+                else if (i == 19 && Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("[HiddenSpot] ~r~Didn't find appropiate place");
             }
             return spot;
         }
@@ -4927,13 +4927,13 @@ public class LivelyWorld : Script
                 towdriver.IsPersistent = false;
                 towed.IsPersistent = false;
 
-                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Tow + vehicle spawned");
+                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Tow + vehicle spawned");
                 BlacklistedVehicles.Add(tow);
                 BlacklistedVehicles.Add(towed);
             }
             else
             {
-                if (Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Tow + vehicle failed to spawn");
+                if (Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Tow + vehicle failed to spawn");
 
             }
             BlacklistedEvents.Add(EventType.Tow);
@@ -5365,7 +5365,7 @@ public class LivelyWorld : Script
             Script.Wait(0);
         }
 
-        if (document == null) UI.Notify("~o~LivelyWorld couldn't find the xml file.");
+        if (document == null) GTA.UI.Notification.Show("~o~LivelyWorld couldn't find the xml file.");
         XmlElement root = document.DocumentElement;
         if (Debug >= DebugLevel.EventsAndScenarios) AddNotification("CHAR_SOCIAL_CLUB", "~b~" + ScriptName + " " + ScriptVer, "LOADING", "Loading settings...");
         if (Debug >= DebugLevel.EventsAndScenarios) AddNotification("", "", "", "Replacers:");
@@ -5564,7 +5564,7 @@ public class LivelyWorld : Script
 
         CleanRacers = false;
 
-        //UI.Notify("Racers spawned");
+        //GTA.UI.Notification.Show("Racers spawned");
     }
 
     public static int IsRoadBusy(Vector3 pos)
@@ -5686,7 +5686,7 @@ public class LivelyWorld : Script
             }
         }*/
 
-            //UI.Notify("Final:" +NodeNumber.ToString());
+            //GTA.UI.Notification.Show("Final:" +NodeNumber.ToString());
         }
 
         Function.Call(Hash.GET_VEHICLE_NODE_POSITION, NodeID, outArgA);
@@ -5730,7 +5730,7 @@ public class LivelyWorld : Script
             if (((color.ToString().ToLowerInvariant().Contains("matte") || color.ToString().ToLowerInvariant().Contains("worn")) && color.ToString().ToLowerInvariant().Contains(ToLookFor)))
             {
                 NewVehicleC = color;
-                UI.Notify("Found color: " + NewVehicleC);
+                GTA.UI.Notification.Show("Found color: " + NewVehicleC);
 
                 v.PrimaryColor = NewVehicleC;
                 break;
@@ -5874,7 +5874,7 @@ public class LivelyWorld : Script
         }
         else
         {
-            UI.Notify(message);
+            GTA.UI.Notification.Show(message);
         }
     }
     public static void DisplayHelpTextThisFrame(string text)
@@ -5922,11 +5922,11 @@ public class LivelyWorld : Script
 
         if (carrier.Model.IsCar && carrier.HasBone("attach_female") && carrier.Model != "yosemitexl" && carrier.Model != "ramptruck")
         {
-            //ui.notify("Carrier " + carrier.FriendlyName + " has an 'attach_female' bone, looking for trailers");
+            //GTA.UI.Notification.Show("Carrier " + carrier.FriendlyName + " has an 'attach_female' bone, looking for trailers");
 
             if (Function.Call<bool>(Hash.IS_VEHICLE_ATTACHED_TO_TRAILER, carrier))
             {
-                //ui.notify("This carrier has a trailer, getting trailer");
+                //GTA.UI.Notification.Show("This carrier has a trailer, getting trailer");
                 Vehicle trailer = null; // GetTrailer(ToCarry);
                 if (trailer == null)
                 {
@@ -5941,7 +5941,7 @@ public class LivelyWorld : Script
                 if (trailer != null)
                 {
                     carrier = trailer;
-                    //ui.notify("Trailer found, " + carrier.FriendlyName + "(" + carrier.DisplayName + ")");
+                    //GTA.UI.Notification.Show("Trailer found, " + carrier.FriendlyName + "(" + carrier.DisplayName + ")");
 
                     foreach (Vehicle veh in World.GetNearbyVehicles(carrier.Position, 10f))
                         if (veh != OriginalCarrier && veh != carrier && veh.IsAttachedTo(carrier))
@@ -5949,26 +5949,26 @@ public class LivelyWorld : Script
                             if (DetachIfFound) Detach(carrier, veh);
                             return veh;
                             Carried = veh;
-                            //ui.notify("Found ToCarry, " + ToCarry.FriendlyName);
+                            //GTA.UI.Notification.Show("Found ToCarry, " + ToCarry.FriendlyName);
                             break;
                         }
                 }
                 else
                 {
-                    //ui.notify("Trailer not found, aborting");
+                    //GTA.UI.Notification.Show("Trailer not found, aborting");
                     return null;
                 }
             }
             else
             {
-                //ui.notify("This carrier doesn't have trailer, aborting");
+                //GTA.UI.Notification.Show("This carrier doesn't have trailer, aborting");
                 return null;
             }
 
         }
         else
         {
-            //ui.notify("Carrier " + carrier.FriendlyName + " does ~o~NOT~w~ have an 'attach_female' bone, must be a normal car");
+            //GTA.UI.Notification.Show("Carrier " + carrier.FriendlyName + " does ~o~NOT~w~ have an 'attach_female' bone, must be a normal car");
             foreach (Vehicle v in World.GetNearbyVehicles(carrier.Position, carrier.Model.GetDimensions().Y))
             {
                 if (v.IsAttachedTo(carrier))
@@ -5986,23 +5986,23 @@ public class LivelyWorld : Script
     public static void Detach(Vehicle carrier, Vehicle cargo)
     {
         cargo.Detach();
-        if (carrier == Game.Player.Character.CurrentVehicle) UI.Notify("Detaching " + cargo.FriendlyName + " from " + carrier.FriendlyName);
+        if (carrier == Game.Player.Character.CurrentVehicle) GTA.UI.Notification.Show("Detaching " + cargo.FriendlyName + " from " + carrier.FriendlyName);
 
         if (CanWeUse(Game.Player.Character.CurrentVehicle) && carrier == Game.Player.Character.CurrentVehicle)
             if (Game.IsControlPressed(2, GTA.Control.ParachuteTurnLeftOnly))
             {
-                //ui.notify("~o~Left");
+                //GTA.UI.Notification.Show("~o~Left");
 
                 cargo.Position = carrier.Position - (carrier.RightVector * carrier.Model.GetDimensions().X);
             }
         if (Game.IsControlPressed(2, GTA.Control.ParachuteTurnRightOnly))
         {
-            //ui.notify("~o~Right");
+            //GTA.UI.Notification.Show("~o~Right");
             cargo.Position = carrier.Position + (carrier.RightVector * carrier.Model.GetDimensions().X);
         }
         if (Game.IsControlPressed(2, GTA.Control.ParachutePitchDownOnly))
         {
-            //ui.notify("~o~Back");
+            //GTA.UI.Notification.Show("~o~Back");
 
             cargo.Position = carrier.Position + -(carrier.ForwardVector * carrier.Model.GetDimensions().Y);
             // ToCarry.Position = carrier.Position + (carrier.RightVector * carrier.Model.GetDimensions().X);
@@ -6021,11 +6021,11 @@ public class LivelyWorld : Script
         {
             if (carrier.Model.IsCar && carrier.HasBone("attach_female") && carrier.Model != "yosemitexl" && carrier.Model != "ramptruck")
             {
-                //ui.notify("Carrier " + carrier.FriendlyName + " has an 'attach_female' bone, looking for trailers");
+                //GTA.UI.Notification.Show("Carrier " + carrier.FriendlyName + " has an 'attach_female' bone, looking for trailers");
 
                 if (Function.Call<bool>(Hash.IS_VEHICLE_ATTACHED_TO_TRAILER, carrier))
                 {
-                    //ui.notify("This carrier has a trailer, getting trailer");
+                    //GTA.UI.Notification.Show("This carrier has a trailer, getting trailer");
                     Vehicle trailer = null; // GetTrailer(ToCarry);
                     if (trailer == null)
                     {
@@ -6040,32 +6040,32 @@ public class LivelyWorld : Script
                     if (trailer != null)
                     {
                         carrier = trailer;
-                        //ui.notify("Trailer found, " + carrier.FriendlyName + "(" + carrier.DisplayName + ")");
+                        //GTA.UI.Notification.Show("Trailer found, " + carrier.FriendlyName + "(" + carrier.DisplayName + ")");
 
                         foreach (Vehicle veh in World.GetNearbyVehicles(carrier.Position, 10f))
                             if (veh != OriginalCarrier && veh != carrier)
                             {
                                 ToCarry = veh;
-                                //ui.notify("Found ToCarry, " + ToCarry.FriendlyName);
+                                //GTA.UI.Notification.Show("Found ToCarry, " + ToCarry.FriendlyName);
                                 break;
                             }
                     }
                     else
                     {
-                        //ui.notify("Trailer not found, aborting");
+                        //GTA.UI.Notification.Show("Trailer not found, aborting");
                         return;
                     }
                 }
                 else
                 {
-                    //ui.notify("This carrier doesn't have trailer, aborting");
+                    //GTA.UI.Notification.Show("This carrier doesn't have trailer, aborting");
                     return;
                 }
 
             }
             else
             {
-                //ui.notify("Carrier " + carrier.FriendlyName + " does ~o~NOT~w~ have an 'attach_female' bone, must be a normal car");
+                //GTA.UI.Notification.Show("Carrier " + carrier.FriendlyName + " does ~o~NOT~w~ have an 'attach_female' bone, must be a normal car");
                 foreach (Vehicle v in World.GetNearbyVehicles(carrier.Position, carrier.Model.GetDimensions().Y))
                 {
                     if (v.IsAttachedTo(carrier))
@@ -6073,7 +6073,7 @@ public class LivelyWorld : Script
 
                         Detach(carrier, v);
 
-                        //ui.notify("~o~ToCarry already attached, aborting");
+                        //GTA.UI.Notification.Show("~o~ToCarry already attached, aborting");
 
                         return;
                     }
@@ -6085,7 +6085,7 @@ public class LivelyWorld : Script
                         if (veh != OriginalCarrier && veh != carrier)
                         {
                             ToCarry = veh;
-                            //ui.notify("Found ToCarry, " + ToCarry.FriendlyName);
+                            //GTA.UI.Notification.Show("Found ToCarry, " + ToCarry.FriendlyName);
                             break;
                         }
                 }
@@ -6102,13 +6102,13 @@ public class LivelyWorld : Script
                     if (ray.DitHitEntity && ray.HitEntity.Model.IsVehicle)
                     {
                         ToCarry = ray.HitEntity as Vehicle;
-                        //ui.notify("Carrier: " + carrier.FriendlyName);
-                        //ui.notify("ToCarry: " + ToCarry.FriendlyName);
+                        //GTA.UI.Notification.Show("Carrier: " + carrier.FriendlyName);
+                        //GTA.UI.Notification.Show("ToCarry: " + ToCarry.FriendlyName);
 
                     }
                     else
                     {
-                        //ui.notify("No vehicle found behind yours.");
+                        //GTA.UI.Notification.Show("No vehicle found behind yours.");
                         return;
                     }
                 }
@@ -6118,11 +6118,11 @@ public class LivelyWorld : Script
 
         if (!CanWeUse(ToCarry))
         {
-            //ui.notify("ToCarry not found, aborting");
+            //GTA.UI.Notification.Show("ToCarry not found, aborting");
             return;
         }
 
-        if (OriginalCarrier == Game.Player.Character.CurrentVehicle) UI.Notify("Attaching " + ToCarry.FriendlyName + " to" + OriginalCarrier.FriendlyName);
+        if (OriginalCarrier == Game.Player.Character.CurrentVehicle) GTA.UI.Notification.Show("Attaching " + ToCarry.FriendlyName + " to" + OriginalCarrier.FriendlyName);
         if (ToCarry.IsAttached())
         {
 
@@ -6175,8 +6175,8 @@ public class LivelyWorld : Script
             CarrierOffset = new Vector3(0, -2f, -(ToCarry.Model.GetDimensions().Z / 2) + 0.5f); // v.Model.GetDimensions().Z * 0.5f
             truckoffset = new Vector3(0f, 0f, (ToCarry.Model.GetDimensions().Z * 0.4f));
         }
-        //ui.notify("Calculated offsets");
-        //ui.notify("Is NOT normal vehicle, attaching");
+        //GTA.UI.Notification.Show("Calculated offsets");
+        //GTA.UI.Notification.Show("Is NOT normal vehicle, attaching");
 
 
         bool Collision = true;

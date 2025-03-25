@@ -42,7 +42,7 @@ namespace Lively_World
             if (area.Length > 0) AreaOrZone = area.ToLowerInvariant();
             if (timeframe.Length > 0) Time = timeframe;
             if(LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - added TrafficSpawner ("+source+", in "+area+")");
-           if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify(SourceVehicle+ " spawner, timer:"+ (Cooldown- Game.GameTime) * 0.001f + "s");
+           if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show(SourceVehicle+ " spawner, timer:"+ (Cooldown- Game.GameTime) * 0.001f + "s");
         }
 
         public void Clear()
@@ -147,7 +147,7 @@ namespace Lively_World
                                                 if (LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - too much boat traffic (> 5) to spawn more.");
                                                 return false;
                                             }
-                                            if (World.GetZoneNameLabel(Game.Player.Character.Position) == "OCEANA")
+                                            if (Function.Call<string>(Hash.GET_NAME_OF_ZONE, Game.Player.Character.Position.X, Game.Player.Character.Position.Y, Game.Player.Character.Position.Z) == "OCEANA")
                                             {
                                                 foreach(Vector3 v in LivelyWorld.OceanSpawns)
                                                 {
@@ -267,9 +267,9 @@ namespace Lively_World
                                     if (LivelyWorld.CanWeUse(cargo)) LivelyWorld.Attach(veh, cargo);
                                     LivelyWorld.TemporalPersistence.Add(cargo);
                                 }
-                                if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~" + SourceVehicle + " spawned (and entered cooldown)");// if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) 
+                                if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~" + SourceVehicle + " spawned (and entered cooldown)");// if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) 
 
-                                if (!veh.SirenActive)
+                                if (!Function.Call<bool>(Hash.IS_VEHICLE_SIREN_ON, veh))
                                 {
                                       veh.Driver.IsPersistent = false;
                                     veh.IsPersistent = false;
@@ -283,7 +283,7 @@ namespace Lively_World
                         }
                     }
                 }
-                //else if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify("~o~Spawner - " + SourceVehicle + " - " + AreaOrZone + " - " + Time + " is on cooldown");
+                //else if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("~o~Spawner - " + SourceVehicle + " - " + AreaOrZone + " - " + Time + " is on cooldown");
             }
             else if(LivelyWorld.CanWeUse(veh))
             {                
@@ -313,7 +313,7 @@ namespace Lively_World
 
         public void AmbientDrive()
         {
-            //if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Tasked " + veh.FriendlyName + " to drive, speed " + veh.Speed);
+            //if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Tasked " + veh.FriendlyName + " to drive, speed " + veh.Speed);
             if (!LivelyWorld.CanWeUse(ped) || ped.IsInCombat) return;
 
             TaskSequence seq = new TaskSequence();

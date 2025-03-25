@@ -12,10 +12,11 @@ namespace Lively_World
 {
    public class DrugDeal
     {
-        int DealerRLGroup = World.AddRelationshipGroup("DealerRLGroup");
+        RelationshipGroup DealerRLGroup = World.AddRelationshipGroup("DealerRLGroup");
 
         List<Ped> Goons = new List<Ped>();
         Ped Dealer;
+        Blip DealerBlip;
         Ped Buyer;
         Vehicle car;
         public bool Finished = false;
@@ -33,7 +34,7 @@ namespace Lively_World
             TimeAlive = Game.GameTime+60000;
             //Distance = place.DistanceTo(Game.Player.Character.Position);
             GangDeal = gangs;
-            if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios)  UI.Notify("~b~Deal spawned");
+            if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios)  GTA.UI.Notification.Show("~b~Deal spawned");
             //LivelyWorld.BlacklistedImportantEvents.Add(EventType.Deal);
             Vector3 carpos = World.GetSafeCoordForPed(center, false);
 
@@ -115,7 +116,7 @@ namespace Lively_World
                 Function.Call(Hash.TASK_START_SCENARIO_IN_PLACE, newped, "CODE_HUMAN_CROSS_ROAD_WAIT", 1000, true);
                 newped.Heading = car.Heading;//LivelyWorld.AngleBetweenVectors(place, carpos);
 
-                car.OpenDoor(VehicleDoor.Trunk, false, false);
+                Function.Call(Hash.SET_VEHICLE_DOOR_OPEN, car, 5, false, false);
                 Buyer = newped;
                 //PedsInvolved.Add(newped);
             }
@@ -162,7 +163,7 @@ namespace Lively_World
                 newped.Heading = car.Heading;//LivelyWorld.AngleBetweenVectors(place, carpos);
                 Buyer = newped;
 
-                car.OpenDoor(VehicleDoor.Trunk, false, false);
+                Function.Call(Hash.SET_VEHICLE_DOOR_OPEN, car, 5, false, false);
                 // PedsInvolved.Add(newped);
             }
 
@@ -171,14 +172,14 @@ namespace Lively_World
 
             if (LivelyWorld.DebugBlips)
             {
-                Dealer.AddBlip();
-                Dealer.CurrentBlip.Scale = 0.7f;
-                Dealer.CurrentBlip.IsShortRange = true;
-                Dealer.CurrentBlip.Name = "Deal";
+                DealerBlip = Dealer.AddBlip();
+                DealerBlip.Scale = 0.7f;
+                DealerBlip.IsShortRange = true;
+                DealerBlip.Name = "Deal";
             }
             if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios)
             {
-                UI.Notify("~b~Spawned Deal");
+                GTA.UI.Notification.Show("~b~Spawned Deal");
             }
 
         }
@@ -219,14 +220,18 @@ namespace Lively_World
                     seq.Close();
                     Dealer.Task.PerformSequence(seq);
                     seq.Dispose();
-                    if (LivelyWorld.CanWeUse(car)) car.CloseDoor(VehicleDoor.Trunk, false);
+                    if (LivelyWorld.CanWeUse(car))
+                    {
+                        Function.Call(Hash.SET_VEHICLE_DOOR_SHUT, car, 5, false);
+                    }
                     Finished = true;
                 }
                 if(LivelyWorld.isCopInRange(Dealer.Position,40) || LivelyWorld.isCopVehicleRange(Dealer.Position, 40)) Dealer.Task.FightAgainst(Game.Player.Character);
-                if (Game.Player.Character.IsInRangeOf(Dealer.Position, 40f) && Dealer.IsOnScreen && World.GetRelationshipBetweenGroups(DealerRLGroup, Game.Player.Character.RelationshipGroup)!= Relationship.Hate)
+                if ((Game.Player.Character.Position.DistanceTo(Dealer.Position) < 40f) && Dealer.IsOnScreen &&
+                    Function.Call<Relationship>(Hash.GET_RELATIONSHIP_BETWEEN_GROUPS, DealerRLGroup.Hash, Game.Player.Character.RelationshipGroup) != Relationship.Hate)
                 {
-                    World.SetRelationshipBetweenGroups(Relationship.Hate, DealerRLGroup, Function.Call<int>(GTA.Native.Hash.GET_HASH_KEY, "PLAYER"));
-                    World.SetRelationshipBetweenGroups(Relationship.Hate, Function.Call<int>(GTA.Native.Hash.GET_HASH_KEY, "PLAYER"), DealerRLGroup);
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, DealerRLGroup.Hash, Game.Player.Character.RelationshipGroup);
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Game.Player.Character.RelationshipGroup, DealerRLGroup.Hash);
                 }
                 if (Dealer.IsInCombat)
                     {
@@ -241,15 +246,15 @@ namespace Lively_World
                             seq.Dispose();
                         }
                     }
-                if (!Game.Player.Character.IsInRangeOf(car.Position, Distance * 1.5f) || (!car.IsAlive || StoleCar)) Finished = true;
+                if (!(Game.Player.Character.Position.DistanceTo(car.Position) < Distance * 1.5f) || (!car.IsAlive || StoleCar)) Finished = true;
             }
-            else if (!Game.Player.Character.IsInRangeOf(car.Position, 100f) || (!car.IsAlive || StoleCar)) Finished = true;
+            else if (!(Game.Player.Character.Position.DistanceTo(car.Position) < 100f) || (!car.IsAlive || StoleCar)) Finished = true;
         }
         public void Clear()
         {
             if (LivelyWorld.CanWeUse(Dealer))
             {
-                if (Dealer.CurrentBlip.Exists()) Dealer.CurrentBlip.Color = BlipColor.White;
+                if (DealerBlip.Exists()) DealerBlip.Color = BlipColor.White;
                 Dealer.IsPersistent = false;                
             }
             if (LivelyWorld.CanWeUse(Buyer)) Buyer.IsPersistent = false;

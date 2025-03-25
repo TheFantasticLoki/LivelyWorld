@@ -12,8 +12,10 @@ namespace Lively_World
     public class TaxiEvent
     {
         Ped hitch;
+        Blip hitchBlip;
         Ped Driver;
         Vehicle Taxi;
+        Blip TaxiBlip;
        public bool Finished = false;
         int Status = 0;
         float Range = 300f;
@@ -27,17 +29,17 @@ namespace Lively_World
             hitch.IsPersistent = true;            
             Taxi.IsPersistent = true;
             Driver.IsPersistent = true;
-            if (LivelyWorld.DebugBlips && !taxi.CurrentBlip.Exists())
+            if (LivelyWorld.DebugBlips && !TaxiBlip.Exists())
             {
-                Taxi.AddBlip();
-                Taxi.CurrentBlip.Sprite = BlipSprite.Cab;
-                Taxi.CurrentBlip.Color = BlipColor.Yellow;
-                Taxi.CurrentBlip.IsShortRange = true;
+                TaxiBlip = Taxi.AddBlip();
+                TaxiBlip.Sprite = BlipSprite.Cab;
+                TaxiBlip.Color = BlipColor.Yellow;
+                TaxiBlip.IsShortRange = true;
 
-                hitch.AddBlip();
-                hitch.CurrentBlip.Color = BlipColor.White;
-                hitch.CurrentBlip.Scale = 0.7f;
-                hitch.CurrentBlip.IsShortRange = true;
+                hitchBlip = hitch.AddBlip();
+                hitchBlip.Color = BlipColor.White;
+                hitchBlip.Scale = 0.7f;
+                hitchBlip.IsShortRange = true;
                 
             }
 
@@ -47,13 +49,13 @@ namespace Lively_World
 
             if (hitch.IsInVehicle(Taxi))
             {
-               if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Taxi event mode: dropoff");
+               if(LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Taxi event mode: dropoff");
                 DropOff = true;
                  //Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD, Driver, Taxi, pos.X, pos.Y, pos.Z, 10f, 1, Taxi.Model, 1 + 2 + 8 + 16 + 32 + 128 + 256, 15.0, 1.0);
             }
             else
             {
-                if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) UI.Notify("Taxi event mode: pick up");
+                if (LivelyWorld.Debug >= DebugLevel.EventsAndScenarios) GTA.UI.Notification.Show("Taxi event mode: pick up");
 
                 Vector3 pos = hitch.Position;
                 Function.Call(Hash.TASK_VEHICLE_DRIVE_TO_COORD, Driver, Taxi, pos.X, pos.Y, pos.Z, 10f, 1, Taxi.Model, 1 + 2 + 8 + 16 + 32 + 128 + 256, 15.0, 1.0);
@@ -69,7 +71,7 @@ namespace Lively_World
                 Finished = true;
                 return;
             }
-            if (LivelyWorld.CanWeUse(Taxi) && LivelyWorld.CanWeUse(hitch) && LivelyWorld.CanWeUse(Driver) && Taxi.IsInRangeOf(Game.Player.Character.Position, Range))
+            if (LivelyWorld.CanWeUse(Taxi) && LivelyWorld.CanWeUse(hitch) && LivelyWorld.CanWeUse(Driver) && (Taxi.Position.DistanceTo(Game.Player.Character.Position) < Range))
             {
                 if (DropOff)
                 {
@@ -96,7 +98,7 @@ namespace Lively_World
                     {
                         case 0:
                             {
-                                if (Taxi.IsInRangeOf(hitch.Position, 20f))
+                                if ((Taxi.Position.DistanceTo(hitch.Position) < 20f))
                                 {
                                     Status++;
                                     Vector3 pos = Taxi.Position + (Taxi.ForwardVector * 10f) + (Taxi.RightVector * 2);
@@ -117,7 +119,7 @@ namespace Lively_World
                                     Status++;
                                     Range = 50;
                                 }
-                                else if (!hitch.IsGettingIntoAVehicle)
+                                else if (!hitch.IsInVehicle() && hitch.TaskSequenceProgress == -1)
                                 {
                                     hitch.Task.EnterVehicle(Taxi, VehicleSeat.RightRear, -1, 1f);
                                 }
@@ -135,7 +137,7 @@ namespace Lively_World
         }
         public void Clear()
         {
-            if (Taxi.CurrentBlip.Exists()) Taxi.CurrentBlip.Color = BlipColor.White;
+            if (TaxiBlip.Exists()) TaxiBlip.Color = BlipColor.White;
 
             //if (hitch.CurrentBlip.Exists())  hitch.CurrentBlip.Remove();
             //if (Taxi.CurrentBlip.Exists()) Taxi.CurrentBlip.Remove();

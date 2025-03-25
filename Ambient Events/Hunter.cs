@@ -15,9 +15,11 @@ namespace Lively_World
         public bool Finished = false;
         //List<Ped> Hunters = new List<Ped>();
         public Ped HunterPed;
+        public Blip HunterBlip;
         public Vehicle HunterCar;
+        public Blip HunterCarBlip;
         public Ped HunterDog;
-        public static int HunterRLGroup = World.AddRelationshipGroup("LWHUNTER");
+        public static RelationshipGroup HunterRLGroup = World.AddRelationshipGroup("LWHUNTER");
         public float DespawnRange = 300f;
         public int TimesTold = 0;
         public int Kills = 0;
@@ -52,11 +54,11 @@ namespace Lively_World
 
             if (LivelyWorld.DebugBlips)
             {
-                HunterPed.AddBlip();
-                HunterPed.CurrentBlip.Sprite = BlipSprite.Hunting;
-                HunterPed.CurrentBlip.Color = BlipColor.Yellow;
-                HunterPed.CurrentBlip.IsShortRange = true;
-                HunterPed.CurrentBlip.Name = "Hunter";
+                HunterBlip = HunterPed.AddBlip();
+                HunterBlip.Sprite = BlipSprite.Hunting;
+                HunterBlip.Color = BlipColor.Yellow;
+                HunterBlip.IsShortRange = true;
+                HunterBlip.Name = "Hunter";
 
             }
             HunterPed.AlwaysKeepTask = true;
@@ -64,24 +66,23 @@ namespace Lively_World
             //if(Game.Player.Character.Position.DistanceTo(place)>50F) DespawnRange = Game.Player.Character.Position.DistanceTo(place)*1.5f;
             //HunterPed.FiringPattern = FiringPattern.SingleShot;
             HunterPed.Weapons.Give(WeaponHash.SniperRifle, 999, true, true);
-            HunterPed.Weapons.Current.SetComponent(WeaponComponent.AtArSupp02, true);
+            Function.Call(Hash.GIVE_WEAPON_COMPONENT_TO_PED, HunterPed.Handle, (uint)WeaponHash.SniperRifle, Game.GenerateHash("COMPONENT_AT_AR_SUPP_02"));
 
-             if(LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Set up");
-            World.SetRelationshipBetweenGroups(Relationship.Respect, HunterRLGroup, Game.GenerateHash("CIVMALE"));
-            World.SetRelationshipBetweenGroups(Relationship.Respect, Game.GenerateHash("CIVMALE"), HunterRLGroup);
+            if (LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - Set up");
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, HunterRLGroup.Hash, Game.GenerateHash("CIVMALE"));
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.GenerateHash("CIVMALE"), HunterRLGroup.Hash);
 
-            World.SetRelationshipBetweenGroups(Relationship.Respect, Game.GenerateHash("CIVFEMALE"), HunterRLGroup);
-            World.SetRelationshipBetweenGroups(Relationship.Respect, HunterRLGroup, Game.GenerateHash("CIVFEMALE"));
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.GenerateHash("CIVFEMALE"), HunterRLGroup.Hash);
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, HunterRLGroup.Hash, Game.GenerateHash("CIVFEMALE"));
 
-            World.SetRelationshipBetweenGroups(Relationship.Respect, Game.GenerateHash("COP"), HunterRLGroup);
-            World.SetRelationshipBetweenGroups(Relationship.Respect, HunterRLGroup, Game.GenerateHash("COP"));
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.GenerateHash("COP"), HunterRLGroup.Hash);
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, HunterRLGroup.Hash, Game.GenerateHash("COP"));
 
-
-            World.SetRelationshipBetweenGroups(Relationship.Hate, HunterRLGroup, Game.GenerateHash("WILD_ANIMAL"));
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, HunterRLGroup.Hash, Game.GenerateHash("WILD_ANIMAL"));
             //World.SetRelationshipBetweenGroups(Relationship.Hate, Game.GenerateHash("WILD_ANIMAL"), HunterRLGroup);
             //World.SetRelationshipBetweenGroups(Relationship.Hate, Game.GenerateHash("DEER"), HunterRLGroup);        
-            World.SetRelationshipBetweenGroups(Relationship.Hate, HunterRLGroup, Game.GenerateHash("DEER"));
-             if(LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - animal relationships set");
+            Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, HunterRLGroup.Hash, Game.GenerateHash("DEER"));
+            if (LivelyWorld.DebugOutput) File.AppendAllText(@"scripts\LivelyWorldDebug.txt", "\n" + DateTime.Now + " - animal relationships set");
             //World.SetRelationshipBetweenGroups(Relationship.Hate, HunterRLGroup, Game.GenerateHash("PLAYER"));
             //World.SetRelationshipBetweenGroups(Relationship.Hate, Game.GenerateHash("PLAYER"), HunterRLGroup);
 
@@ -97,11 +98,11 @@ namespace Lively_World
 
                 if (LivelyWorld.DebugBlips)
                 {
-                    HunterCar.AddBlip();
-                    HunterCar.CurrentBlip.Sprite = BlipSprite.PersonalVehicleCar;
-                    HunterCar.CurrentBlip.Color = BlipColor.Yellow;
-                    HunterCar.CurrentBlip.IsShortRange = true;
-                    HunterCar.CurrentBlip.Name = "Hunter's car";
+                    HunterCarBlip = HunterCar.AddBlip();
+                    HunterCarBlip.Sprite = BlipSprite.PersonalVehicleCar;
+                    HunterCarBlip.Color = BlipColor.Yellow;
+                    HunterCarBlip.IsShortRange = true;
+                    HunterCarBlip.Name = "Hunter's car";
 
                 }
             }
@@ -159,16 +160,16 @@ namespace Lively_World
         int patience=0;
         public void Process()
         {
-            if ((!Game.Player.Character.IsInRangeOf(HunterPed.Position, DespawnRange) || !HunterPed.IsAlive) && !Finished) Finished = true;
-            if(LivelyWorld.CanWeUse(HunterDog) && !HunterDog.IsInRangeOf(HunterPed.Position,5f) && HunterDog.IsStopped) Function.Call(Hash.TASK_GO_TO_ENTITY, HunterDog,HunterPed , -1, 2f, 1f, 0f, 0);
+            if ((!(Game.Player.Character.Position.DistanceTo(HunterPed.Position) < DespawnRange) || !HunterPed.IsAlive) && !Finished) Finished = true;
+            if(LivelyWorld.CanWeUse(HunterDog) && !(HunterDog.Position.DistanceTo(HunterPed.Position) < 5f) && HunterDog.IsStopped) Function.Call(Hash.TASK_GO_TO_ENTITY, HunterDog,HunterPed , -1, 2f, 1f, 0f, 0);
 
-            if (!Notified && Game.Player.Character.IsStopped && Game.Player.Character.IsInRangeOf(HunterPed.Position, 8f))
+            if (!Notified && Game.Player.Character.IsStopped && (Game.Player.Character.Position.DistanceTo(HunterPed.Position) < 8f))
             {
                 Notified = true;
                 LivelyWorld.AddQueuedConversation("~b~[Hunter]~w~: Hey man wandering alone in the woods, why don't you give me a hand here. If you spot any animal, tell me, ok?");
                 LivelyWorld.AddQueuedHelpText("If you spot prey, press ~INPUT_CONTEXT~ to tell the ~b~Hunter~w~.");
-                World.SetRelationshipBetweenGroups(Relationship.Like, HunterRLGroup, Game.GenerateHash("PLAYER"));
-                World.SetRelationshipBetweenGroups(Relationship.Like, Game.GenerateHash("PLAYER"), HunterRLGroup);
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Like, HunterRLGroup.Hash, Game.GenerateHash("PLAYER"));
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Like, Game.GenerateHash("PLAYER"), HunterRLGroup.Hash);
             }
             if (!HunterPed.IsInCombat && HunterPed.IsStopped)
             {
@@ -186,7 +187,8 @@ namespace Lively_World
                 {
                     if (ped.HeightAboveGround < 3f && !ped.IsHuman && !ped.IsAlive && HunterPed.IsInCombatAgainst(ped))
                     {
-                        Function.Call(Hash._0x0DC7CABAB1E9B67E, ped, true); //Load Collision
+                        //Function.Call(Hash._0x0DC7CABAB1E9B67E, ped, true); //Load Collision
+                        Function.Call(GTA.Native.Hash.TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS, ped, true);
 
                         //target = ped;
                         TaskSequence seq = new TaskSequence();
@@ -216,7 +218,7 @@ namespace Lively_World
                     foreach (Ped ped in World.GetNearbyPeds(HunterPed, 5f))
                         if (ped.IsDead)
                         {
-                            if (Game.Player.Character.IsInRangeOf(HunterPed.Position, 20f))
+                            if ((Game.Player.Character.Position.DistanceTo(HunterPed.Position) < 20f))
                             {
                                 Kills++;
 
@@ -257,7 +259,7 @@ namespace Lively_World
             {
                 HunterPed.RelationshipGroup = Game.GenerateHash("CIVMALE");
 
-                if (HunterPed.CurrentBlip.Exists()) HunterPed.CurrentBlip.Color = BlipColor.White;
+                if (HunterBlip.Exists()) HunterBlip.Color = BlipColor.White;
                 Function.Call(Hash.RESET_PED_MOVEMENT_CLIPSET, HunterPed, 0.0f);
                 Function.Call(Hash.RESET_PED_STRAFE_CLIPSET, HunterPed);
                 HunterPed.IsPersistent = false;
